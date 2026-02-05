@@ -62,3 +62,27 @@ struct PieSliceShape: Shape {
         return path
     }
 }
+
+#Preview {
+    let values: [(label: String, value: Double, color: Color)] = [
+        ("Photos", 400, .blue),
+        ("Apps", 300, .green),
+        ("System", 200, .orange),
+        ("Other", 100, .purple)
+    ]
+    let total = values.map { $0.value }.reduce(0, +)
+    var start: Double = 0
+    let slices: [PieSlice] = values.map { item in
+        let end = start + (item.value / total) * 360
+        let slice = PieSlice(
+            startAngle: .degrees(start),
+            endAngle: .degrees(end),
+            color: item.color,
+            label: item.label,
+            value: item.value
+        )
+        start = end
+        return slice
+    }
+    return PieChartView(slices: slices, total: total)
+}

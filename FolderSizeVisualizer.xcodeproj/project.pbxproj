@@ -29,22 +29,9 @@
 		94893E9A2F198709003D6475 /* FolderSizeVisualizerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FolderSizeVisualizerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		DD1137712F33F6D50083EC86 /* Exceptions for "FolderSizeVisualizer" folder in "FolderSizeVisualizer" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				UIComponents/BarChartView.swift,
-			);
-			target = 94893E822F198706003D6475 /* FolderSizeVisualizer */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		94893E852F198706003D6475 /* FolderSizeVisualizer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				DD1137712F33F6D50083EC86 /* Exceptions for "FolderSizeVisualizer" folder in "FolderSizeVisualizer" target */,
-			);
 			path = FolderSizeVisualizer;
 			sourceTree = "<group>";
 		};
