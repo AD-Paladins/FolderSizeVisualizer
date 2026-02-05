@@ -16,6 +16,7 @@ struct ContentView: View {
             SidebarView(viewModel: viewModel)
         } content: {
             ResultsListView(
+                folderName: viewModel.rootURL?.relativePath ?? "",
                 folders: viewModel.folders,
                 totalSize: viewModel.totalSize,
                 selectedFolderID: $selectedFolder

@@ -36,7 +36,7 @@ actor FolderScanner {
         let progressBatch = 500
 
         // Perform the heavy, synchronous enumeration work off the async actor context.
-        // We collect folderSizes and a total processed count to allow progress reporting.
+        // We collect folderSizes for TOP-LEVEL folders only (direct children of root)
         let (folderSizes, totalProcessed) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int) in
             var folderSizes: [URL: Int64] = [:]
             var processed = 0
@@ -46,14 +46,14 @@ actor FolderScanner {
                 if Task.isCancelled { break }
 
                 let values = try? item.resourceValues(forKeys: keys)
-                let isDirectory = values?.isDirectory ?? false
                 let size = Int64(values?.totalFileAllocatedSize ?? 0)
 
-                if isDirectory {
-                    folderSizes[item, default: 0] += size
-                } else {
-                    let parent = item.deletingLastPathComponent()
-                    folderSizes[parent, default: 0] += size
+                // Find the top-level folder (direct child of root)
+                let topLevelFolder = Self.topLevelFolder(for: item, root: root)
+                
+                // Accumulate size to the top-level folder
+                if let topLevel = topLevelFolder {
+                    folderSizes[topLevel, default: 0] += size
                 }
 
                 processed += 1
@@ -75,5 +75,25 @@ actor FolderScanner {
             .sorted { $0.size > $1.size }
 
         return ScanResult(folders: entries)
+    }
+    
+    /// Finds the top-level folder (direct child of root) for a given item
+    private static func topLevelFolder(for item: URL, root: URL) -> URL? {
+        var current = item
+        var parent = current.deletingLastPathComponent()
+        
+        // Walk up the directory tree until we find the direct child of root
+        while parent.path != root.path {
+            current = parent
+            parent = current.deletingLastPathComponent()
+            
+            // Safety check: if we've gone above root somehow, return nil
+            if parent.path.count < root.path.count {
+                return nil
+            }
+        }
+        
+        // current is now the direct child of root
+        return current == root ? nil : current
     }
 }

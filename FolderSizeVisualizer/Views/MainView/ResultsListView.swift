@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ResultsListView: View {
+    let folderName: String
     let folders: [FolderEntry]
     let totalSize: Int64
     @Binding var selectedFolderID: FolderEntry.ID?
@@ -33,12 +34,18 @@ struct ResultsListView: View {
             }
             .padding(.vertical, 4)
         }
-        .navigationTitle("Scan Results")
+        .navigationTitle(folderNameString)
     }
 
     private func ratio(of folder: FolderEntry) -> Double {
         guard totalSize > 0 else { return 0 }
         return Double(folder.size) / Double(totalSize)
+    }
+    
+    private var folderNameString: String {
+        folderName.isEmpty
+        ? "Scan a folder to get Results"
+        : "Scan Results for \"\(folderName)\""
     }
 }
 
@@ -52,9 +59,16 @@ struct ResultsListView: View {
     ]
     let sampleTotal = sampleFolders.reduce(0) { $0 + $1.size }
 
-    ResultsListView(
-        folders: sampleFolders,
-        totalSize: sampleTotal,
-        selectedFolderID: .constant(nil)
-    )
+    NavigationSplitView {
+        Text("Sidebar")
+    } content: {
+        ResultsListView(
+            folderName: "~/",
+            folders: sampleFolders,
+            totalSize: sampleTotal,
+            selectedFolderID: .constant(nil)
+        )
+    } detail: {
+        Text("Details")
+    }
 }
