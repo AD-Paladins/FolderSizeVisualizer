@@ -14,6 +14,7 @@ final class ScanViewModel {
     var folders: [FolderEntry] = []
     var isScanning = false
     var progress: Double = 0
+    var isFromCache = false
 
     var rootURL: URL?
     var maxResults: Int = 50
@@ -33,6 +34,7 @@ final class ScanViewModel {
         isScanning = true
         progress = 0
         folders = []
+        isFromCache = false
 
         scanTask = Task {
             let progressHandler: @Sendable (Double) -> Void = { [weak self] value in
@@ -46,11 +48,35 @@ final class ScanViewModel {
                 )
 
                 folders = Array(result.folders.prefix(maxResults))
+                
+                // Check if result came from cache
+                let cachedResult = await scanner.getCachedResult(for: url)
+                isFromCache = (cachedResult?.folders == result.folders)
             } catch {
                 folders = []
             }
 
             isScanning = false
+        }
+    }
+    
+    /// Refresh scan for a URL (clears cache for that URL and its subcaches)
+    func refreshScan(url: URL) {
+        Task {
+            await scanner.refreshScan(for: url)
+            startScan(url: url)
+        }
+    }
+    
+    /// Reset all - clear cache and reset to initial state
+    func resetAll() {
+        Task {
+            await scanner.clearCache()
+            cancelScan()
+            folders = []
+            rootURL = nil
+            progress = 0
+            isFromCache = false
         }
     }
 
