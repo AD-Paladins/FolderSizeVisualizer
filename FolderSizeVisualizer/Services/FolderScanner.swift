@@ -13,10 +13,16 @@ actor FolderScanner {
         let folders: [FolderEntry]
     }
 
+    private var scanCache: [URL: ScanResult] = [:]
+
     func scan(
         root: URL,
         progress: @escaping (Double) async -> Void
     ) async throws -> ScanResult {
+        // Check cache first
+        if let cachedResult = scanCache[root] {
+            return cachedResult
+        }
 
         let fileManager = FileManager.default
         let keys: Set<URLResourceKey> = [
@@ -74,7 +80,35 @@ actor FolderScanner {
             .map { FolderEntry(url: $0.key, size: $0.value) }
             .sorted { $0.size > $1.size }
 
-        return ScanResult(folders: entries)
+        let result = ScanResult(folders: entries)
+        
+        // Cache the result
+        scanCache[root] = result
+        
+        return result
+    }
+    
+    /// Get cached result for a URL if it exists
+    func getCachedResult(for url: URL) -> ScanResult? {
+        scanCache[url]
+    }
+    
+    /// Refresh a scan by invalidating its cache and subcaches
+    func refreshScan(for url: URL) {
+        // Remove the URL from cache
+        scanCache.removeValue(forKey: url)
+        
+        // Remove all subcaches (URLs that start with this path)
+        let urlPath = url.path
+        let keysToRemove = scanCache.keys.filter { key in
+            key.path.hasPrefix(urlPath + "/") || key.path.hasPrefix(urlPath)
+        }
+        keysToRemove.forEach { scanCache.removeValue(forKey: $0) }
+    }
+    
+    /// Clear all cached results
+    func clearCache() {
+        scanCache.removeAll()
     }
     
     /// Finds the top-level folder (direct child of root) for a given item
