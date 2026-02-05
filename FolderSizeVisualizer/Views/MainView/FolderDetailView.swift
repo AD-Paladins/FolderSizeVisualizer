@@ -10,6 +10,7 @@ import SwiftUI
 struct FolderDetailView: View {
     let folder: FolderEntry
     let totalSize: Int64
+    let onScanFolder: (URL) -> Void
     
     var body: some View {
         ScrollView {
@@ -37,6 +38,24 @@ struct FolderDetailView: View {
                     }
                     
                     Divider()
+                }
+                
+                // Navigation Action - Scan This Folder
+                GroupBox {
+                    Button {
+                        onScanFolder(folder.url)
+                    } label: {
+                        HStack {
+                            Label("Scan This Folder", systemImage: "arrow.down.circle.fill")
+                                .font(.headline)
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .padding(12)
+                    .background(.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
                 }
                 
                 // Size Overview Card
@@ -283,7 +302,8 @@ struct InfoRow: View {
             url: URL(fileURLWithPath: "/Library"),
             size: 1_500_000_000
         ),
-        totalSize: 10_000_000_000
+        totalSize: 10_000_000_000,
+        onScanFolder: { _ in }
     )
     .frame(width: 400, height: 600)
 }

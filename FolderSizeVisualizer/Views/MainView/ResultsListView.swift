@@ -12,27 +12,61 @@ struct ResultsListView: View {
     let folders: [FolderEntry]
     let totalSize: Int64
     @Binding var selectedFolderID: FolderEntry.ID?
+    let onNavigateBack: (() -> Void)?
+    
+    init(
+        folderName: String,
+        folders: [FolderEntry],
+        totalSize: Int64,
+        selectedFolderID: Binding<FolderEntry.ID?>,
+        onNavigateBack: (() -> Void)? = nil
+    ) {
+        self.folderName = folderName
+        self.folders = folders
+        self.totalSize = totalSize
+        self._selectedFolderID = selectedFolderID
+        self.onNavigateBack = onNavigateBack
+    }
 
     var body: some View {
-        List(folders, selection: $selectedFolderID) { folder in
-            VStack(alignment: .leading, spacing: 6) {
+        VStack(spacing: 0) {
+            // Breadcrumb navigation bar - only show if we can navigate back
+            if let navigateBack = onNavigateBack {
                 HStack {
-                    Text(folder.name)
-                        .font(.body)
-
+                    Button {
+                        navigateBack()
+                    } label: {
+                        Label("Back", systemImage: "chevron.left")
+                    }
+                    .buttonStyle(.borderless)
+                    
                     Spacer()
-
-                    Text(ByteCountFormatter.string(
-                        fromByteCount: folder.size,
-                        countStyle: .file
-                    ))
-                    .foregroundStyle(.secondary)
                 }
-
-                ProgressView(value: ratio(of: folder))
-                    .progressViewStyle(.linear)
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+                .background(.regularMaterial)
             }
-            .padding(.vertical, 4)
+            
+            List(folders, selection: $selectedFolderID) { folder in
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack {
+                        Text(folder.name)
+                            .font(.body)
+
+                        Spacer()
+
+                        Text(ByteCountFormatter.string(
+                            fromByteCount: folder.size,
+                            countStyle: .file
+                        ))
+                        .foregroundStyle(.secondary)
+                    }
+
+                    ProgressView(value: ratio(of: folder))
+                        .progressViewStyle(.linear)
+                }
+                .padding(.vertical, 4)
+            }
         }
         .navigationTitle(folderNameString)
     }
@@ -66,7 +100,8 @@ struct ResultsListView: View {
             folderName: "~/",
             folders: sampleFolders,
             totalSize: sampleTotal,
-            selectedFolderID: .constant(nil)
+            selectedFolderID: .constant(nil),
+            onNavigateBack: nil
         )
     } detail: {
         Text("Details")
