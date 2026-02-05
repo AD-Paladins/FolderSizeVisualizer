@@ -13,19 +13,22 @@ struct ResultsListView: View {
     let totalSize: Int64
     @Binding var selectedFolderID: FolderEntry.ID?
     let onNavigateBack: (() -> Void)?
+    let onScanFolder: ((URL) -> Void)?
     
     init(
         folderName: String,
         folders: [FolderEntry],
         totalSize: Int64,
         selectedFolderID: Binding<FolderEntry.ID?>,
-        onNavigateBack: (() -> Void)? = nil
+        onNavigateBack: (() -> Void)? = nil,
+        onScanFolder: ((URL) -> Void)? = nil
     ) {
         self.folderName = folderName
         self.folders = folders
         self.totalSize = totalSize
         self._selectedFolderID = selectedFolderID
         self.onNavigateBack = onNavigateBack
+        self.onScanFolder = onScanFolder
     }
 
     var body: some View {
@@ -66,6 +69,9 @@ struct ResultsListView: View {
                         .progressViewStyle(.linear)
                 }
                 .padding(.vertical, 4)
+                .onTapGesture(count: 2) {
+                    onScanFolder?(folder.url)
+                }
             }
         }
         .navigationTitle(folderNameString)

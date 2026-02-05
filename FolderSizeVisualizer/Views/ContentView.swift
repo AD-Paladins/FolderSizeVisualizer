@@ -15,13 +15,27 @@ struct ContentView: View {
     var body: some View {
         NavigationSplitView {
             SidebarView(viewModel: viewModel)
+                .safeAreaInset(edge: .bottom) {
+                    if viewModel.rootURL != nil {
+                        Button(action: {
+                            navigationStack.removeAll()
+                            viewModel.resetAll()
+                        }) {
+                            Label("Start Over", systemImage: "arrow.counterclockwise")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .padding()
+                    }
+                }
         } content: {
             ResultsListView(
                 folderName: currentFolderName,
                 folders: viewModel.folders,
                 totalSize: viewModel.totalSize,
                 selectedFolderID: $selectedFolder,
-                onNavigateBack: onNavigateBack
+                onNavigateBack: onNavigateBack,
+                onScanFolder: scanFolder
             )
         } detail: {
             if let selectedID = selectedFolder,
