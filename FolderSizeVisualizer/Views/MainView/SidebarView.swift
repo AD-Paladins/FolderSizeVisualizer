@@ -34,11 +34,13 @@ struct SidebarView: View {
             Divider()
 
             Toggle("Skip hidden files", isOn: $viewModel.skipHiddenFiles)
+            Toggle("Limit results", isOn: $viewModel.limitResults)
 
-            Stepper("Top \(viewModel.maxResults)",
+            Stepper(viewModel.limitResults ? "Top \(viewModel.maxResults)" : "All results",
                     value: $viewModel.maxResults,
                     in: 5...100,
                     step: 5)
+            .disabled(!viewModel.limitResults)
 
             Spacer()
 
@@ -77,3 +79,4 @@ struct SidebarView: View {
 #Preview {
     SidebarView(viewModel: ScanViewModel())
 }
+

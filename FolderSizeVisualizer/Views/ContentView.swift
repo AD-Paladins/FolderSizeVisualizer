@@ -22,7 +22,7 @@ struct ContentView: View {
         NavigationSplitView {
             SidebarView(viewModel: viewModel)
                 .safeAreaInset(edge: .bottom) {
-                    if viewModel.rootURL == nil {
+                    if viewModel.rootURL != nil {
                         VStack {
                             VStack(alignment: .leading) {
                                 Text(viewModel.rootURL?.lastPathComponent ?? "N/A")

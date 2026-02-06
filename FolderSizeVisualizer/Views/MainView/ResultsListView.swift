@@ -51,27 +51,35 @@ struct ResultsListView: View {
             }
             
             List(folders, selection: $selectedFolderID) { folder in
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack {
-                        Text(folder.name)
-                            .font(.body)
+                Button(action: {
+                    selectedFolderID = folder.id
+                }) {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack {
+                            Text(folder.name)
+                                .font(.body)
 
-                        Spacer()
+                            Spacer()
 
-                        Text(ByteCountFormatter.string(
-                            fromByteCount: folder.size,
-                            countStyle: .file
-                        ))
-                        .foregroundStyle(.secondary)
+                            Text(ByteCountFormatter.string(
+                                fromByteCount: folder.size,
+                                countStyle: .file
+                            ))
+                            .foregroundStyle(.secondary)
+                        }
+
+                        ProgressView(value: ratio(of: folder))
+                            .progressViewStyle(.linear)
                     }
-
-                    ProgressView(value: ratio(of: folder))
-                        .progressViewStyle(.linear)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    .padding(.vertical, 4)
                 }
-                .padding(.vertical, 4)
-                .onTapGesture(count: 2) {
+                .buttonStyle(.plain)
+                .tag(folder.id)
+                .simultaneousGesture(TapGesture(count: 2).onEnded {
                     onScanFolder?(folder.url)
-                }
+                })
             }
         }
         .navigationTitle(folderNameString)
@@ -113,3 +121,4 @@ struct ResultsListView: View {
         Text("Details")
     }
 }
+

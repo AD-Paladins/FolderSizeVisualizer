@@ -20,6 +20,7 @@ final class ScanViewModel {
     var rootURL: URL?
     var maxResults: Int = 50
     var skipHiddenFiles: Bool = true
+    var limitResults: Bool = true
 
     var totalSize: Int64 {
         folders.reduce(0) { $0 + $1.size }
@@ -52,7 +53,11 @@ final class ScanViewModel {
                     progress: progressHandler
                 )
 
-                folders = Array(result.folders.prefix(maxResults))
+                if limitResults {
+                    folders = Array(result.folders.prefix(maxResults))
+                } else {
+                    folders = result.folders
+                }
                 
                 // Check if result came from cache
                 let cachedResult = await scanner.getCachedResult(for: url)
