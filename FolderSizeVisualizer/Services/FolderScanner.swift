@@ -17,35 +17,57 @@ actor FolderScanner {
 
     func scan(
         root: URL,
-        progress: @escaping (Double) async -> Void
+        progress: @Sendable @escaping (Double, String) async -> Void
     ) async throws -> ScanResult {
         // Check cache first
         if let cachedResult = scanCache[root] {
             return cachedResult
         }
-
-        let fileManager = FileManager.default
-        let keys: Set<URLResourceKey> = [
-            .isDirectoryKey,
-            .totalFileAllocatedSizeKey
-        ]
-
-        // Prepare the enumerator synchronously
-        guard let enumerator = fileManager.enumerator(
-            at: root,
-            includingPropertiesForKeys: Array(keys),
-            options: [.skipsHiddenFiles]
-        ) else {
-            return ScanResult(folders: [])
-        }
-
-        let progressBatch = 500
+//        // Perform the heavy, synchronous enumeration work off the async actor context.
+//        // We collect folderSizes for TOP-LEVEL folders only (direct children of root)
+//        let (folderSizes, totalProcessed, lastItem) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int, URL?) in
+//            var folderSizes: [URL: Int64] = [:]
+//            var processed = 0
+//            var lastProcessedItem: URL? = nil
+//
 
         // Perform the heavy, synchronous enumeration work off the async actor context.
         // We collect folderSizes for TOP-LEVEL folders only (direct children of root)
-        let (folderSizes, totalProcessed) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int) in
+        let (folderSizes, totalProcessed, lastItem) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int, URL?) in
+            let fileManager = FileManager.default
+            let keys: Set<URLResourceKey> = [
+                .isDirectoryKey,
+                .totalFileAllocatedSizeKey
+            ]
+
+            guard let enumerator = fileManager.enumerator(
+                at: root,
+                includingPropertiesForKeys: Array(keys),
+                options: [.skipsHiddenFiles]
+            ) else {
+                return ([:], 0, nil)
+            }
+
+            let topLevelURLs: [URL]
+            do {
+                let children = try fileManager.contentsOfDirectory(
+                    at: root,
+                    includingPropertiesForKeys: [.isDirectoryKey],
+                    options: [.skipsHiddenFiles]
+                )
+                topLevelURLs = children.filter { url in
+                    let vals = try? url.resourceValues(forKeys: [.isDirectoryKey])
+                    return vals?.isDirectory == true
+                }
+            } catch {
+                topLevelURLs = []
+            }
+            let totalTopLevels = max(topLevelURLs.count, 1)
+            var seenTopLevels = Set<URL>()
+
             var folderSizes: [URL: Int64] = [:]
             var processed = 0
+            var lastProcessedItem: URL? = nil
 
             // Iterate using the Objective-C style API to avoid for-in (which calls makeIterator).
             while let item = enumerator.nextObject() as? URL {
@@ -56,25 +78,33 @@ actor FolderScanner {
 
                 // Find the top-level folder (direct child of root)
                 let topLevelFolder = Self.topLevelFolder(for: item, root: root)
-                
-                // Accumulate size to the top-level folder
+
+                // Accumulate size to the top-level folder and update progress when we first see a new top-level
                 if let topLevel = topLevelFolder {
                     folderSizes[topLevel, default: 0] += size
+
+                    if seenTopLevels.insert(topLevel).inserted {
+                        let fraction = min(Double(seenTopLevels.count) / Double(totalTopLevels), 0.95)
+                        let name = topLevel.lastPathComponent.isEmpty ? topLevel.path : topLevel.lastPathComponent
+                        await progress(fraction, name)
+                    }
                 }
 
                 processed += 1
+                lastProcessedItem = item
 
-                // Periodically yield to be responsive to cancellation.
-                if processed % progressBatch == 0 {
+                // Periodically yield to keep the system responsive.
+                if processed % 1000 == 0 {
                     await Task.yield()
                 }
             }
 
-            return (folderSizes, processed)
+            return (folderSizes, processed, lastProcessedItem)
         }.value
 
-        // Report a final progress update after enumeration completes.
-        await progress(Double(totalProcessed))
+        // Report final progress update after enumeration completes.
+        let finalText = "Completed (\(totalProcessed) items)"
+        await progress(1.0, finalText)
 
         let entries = folderSizes
             .map { FolderEntry(url: $0.key, size: $0.value) }
@@ -131,3 +161,4 @@ actor FolderScanner {
         return current == root ? nil : current
     }
 }
+
