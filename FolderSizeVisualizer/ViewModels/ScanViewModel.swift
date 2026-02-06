@@ -15,6 +15,7 @@ final class ScanViewModel {
     var isScanning = false
     var progress: Double = 0
     var isFromCache = false
+    var currentScannedItem: String = ""
 
     var rootURL: URL?
     var maxResults: Int = 50
@@ -35,10 +36,14 @@ final class ScanViewModel {
         progress = 0
         folders = []
         isFromCache = false
+        currentScannedItem = ""
 
         scanTask = Task {
-            let progressHandler: @Sendable (Double) -> Void = { [weak self] value in
-                Task { @MainActor in self?.progress = value }
+            let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
+                Task { @MainActor in 
+                    self?.progress = value
+                    self?.currentScannedItem = itemName
+                }
             }
 
             do {
