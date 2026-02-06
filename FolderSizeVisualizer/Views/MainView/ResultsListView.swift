@@ -14,6 +14,7 @@ struct ResultsListView: View {
     @Binding var selectedFolderID: FolderEntry.ID?
     let onNavigateBack: (() -> Void)?
     let onScanFolder: ((URL) -> Void)?
+    @State private var hoveredID: FolderEntry.ID? = nil
     
     init(
         folderName: String,
@@ -50,7 +51,7 @@ struct ResultsListView: View {
                 .background(.regularMaterial)
             }
             
-            List(folders, selection: $selectedFolderID) { folder in
+            List(folders) { folder in
                 Button(action: {
                     selectedFolderID = folder.id
                 }) {
@@ -72,15 +73,24 @@ struct ResultsListView: View {
                             .progressViewStyle(.linear)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    .padding(.vertical, 4)
+                    .padding(.vertical, 6)
+                    .padding(.horizontal, 12)
+                    .background(
+                        rowColor(for: folder.id)
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                    .onHover { isHovering in
+                        hoveredID = isHovering ? folder.id : nil
+                    }
                 }
                 .buttonStyle(.plain)
-                .tag(folder.id)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 4, leading: 0, bottom: 0, trailing: 0))
                 .simultaneousGesture(TapGesture(count: 2).onEnded {
                     onScanFolder?(folder.url)
                 })
             }
+            .listStyle(.plain)
         }
         .navigationTitle(folderNameString)
     }
@@ -94,6 +104,12 @@ struct ResultsListView: View {
         folderName.isEmpty
         ? "Scan a folder to get Results"
         : "Scan Results for \"\(folderName)\""
+    }
+    
+    private func rowColor(for id: UUID) -> Color {
+        (selectedFolderID == id)
+        ? Color.accentColor.opacity(0.25)
+        : (hoveredID == id ? Color.secondary.opacity(0.08) : Color.clear)
     }
 }
 
