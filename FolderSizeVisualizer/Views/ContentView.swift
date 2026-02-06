@@ -12,20 +12,39 @@ struct ContentView: View {
     @State private var selectedFolder: FolderEntry.ID?
     @State private var navigationStack: [URL] = []
     
+    init(viewModel: ScanViewModel = ScanViewModel(), selectedFolder: FolderEntry.ID? = nil, navigationStack: [URL]) {
+        self.viewModel = viewModel
+        self.selectedFolder = selectedFolder
+        self.navigationStack = navigationStack
+    }
+    
     var body: some View {
         NavigationSplitView {
             SidebarView(viewModel: viewModel)
                 .safeAreaInset(edge: .bottom) {
-                    if viewModel.rootURL != nil {
-                        Button(action: {
-                            navigationStack.removeAll()
-                            viewModel.resetAll()
-                        }) {
-                            Label("Start Over", systemImage: "arrow.counterclockwise")
-                                .frame(maxWidth: .infinity)
+                    if viewModel.rootURL == nil {
+                        VStack {
+                            VStack(alignment: .leading) {
+                                Text(viewModel.rootURL?.lastPathComponent ?? "N/A")
+                                Text(ByteCountFormatter.string(
+                                    fromByteCount: viewModel.totalSize,
+                                    countStyle: .file
+                                ))
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal)
+                            
+                            Button(action: {
+                                navigationStack.removeAll()
+                                viewModel.resetAll()
+                            }) {
+                                Label("Start Over", systemImage: "arrow.counterclockwise")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .padding([.bottom, .horizontal])
+                            .padding(.top, 8)
                         }
-                        .buttonStyle(.borderedProminent)
-                        .padding()
                     }
                 }
         } content: {
@@ -96,5 +115,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ContentView(viewModel: ScanViewModel(), navigationStack: [])
 }

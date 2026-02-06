@@ -4,7 +4,7 @@ import SwiftUI
 struct FolderSizeVisualizerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(navigationStack: [])
         }
     }
 }
