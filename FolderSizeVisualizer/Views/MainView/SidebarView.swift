@@ -44,7 +44,14 @@ struct SidebarView: View {
 
             if viewModel.isScanning {
                 ProgressView(value: max(0.0, min(viewModel.progress, 1.0))) {
-                    Text("Scanning…")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Scanning…")
+                            .font(.caption)
+                        Text(viewModel.currentScannedItem)
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
                 }
                 .progressViewStyle(.linear)
 
