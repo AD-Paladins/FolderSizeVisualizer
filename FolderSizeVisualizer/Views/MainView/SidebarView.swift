@@ -74,3 +74,6 @@ struct SidebarView: View {
     }
 }
 
+#Preview {
+    SidebarView(viewModel: ScanViewModel())
+}

@@ -92,7 +92,6 @@ struct ContentView: View {
         return ""
     }
     
-    // TODO: - Store parent scans to not do the job again when navigating back
     private func navigateBack() {
         guard let previousURL = navigationStack.popLast() else {
             return
