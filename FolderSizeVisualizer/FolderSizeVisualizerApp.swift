@@ -4,7 +4,11 @@ import SwiftUI
 struct FolderSizeVisualizerApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView(navigationStack: [])
+            // New artifact-based developer intelligence view
+            ArtifactContentView()
+            
+            // To use old folder-based view instead, uncomment:
+            // ContentView(navigationStack: [])
         }
     }
 }
