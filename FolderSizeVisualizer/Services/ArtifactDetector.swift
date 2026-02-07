@@ -32,7 +32,7 @@ actor FileSystemHelper {
     func directorySize(at url: URL) async -> Int64 {
         await Task.detached(priority: .utility) {
             var totalSize: Int64 = 0
-            let fm = FileManager()
+            let fm = FileManager.default
 
             guard let enumerator = fm.enumerator(
                 at: url,
@@ -61,7 +61,7 @@ actor FileSystemHelper {
     /// Get modification date of a file or directory
     func modificationDate(at url: URL) async -> Date? {
         await Task.detached {
-            let fm = FileManager()
+            let fm = FileManager.default
             let values = try? fm.attributesOfItem(atPath: url.path)
             return values?[.modificationDate] as? Date
         }.value
@@ -75,18 +75,21 @@ actor FileSystemHelper {
     /// List directories in a path
     func listDirectories(at url: URL) async -> [URL] {
         await Task.detached {
-            let fm = FileManager()
-            guard let contents = try? fm.contentsOfDirectory(
-                at: url,
-                includingPropertiesForKeys: [.isDirectoryKey],
-                options: [.skipsHiddenFiles]
-            ) else {
+            let fm = FileManager.default
+            do {
+                let topLevelURLs: [URL]
+                let children = try fm.contentsOfDirectory(
+                    at: url,
+                    includingPropertiesForKeys: [.isDirectoryKey],
+                    options: [.skipsHiddenFiles]
+                )
+                topLevelURLs = children.filter { url in
+                    let vals = try? url.resourceValues(forKeys: [.isDirectoryKey])
+                    return vals?.isDirectory == true
+                }
+                return topLevelURLs
+            } catch {
                 return []
-            }
-
-            return contents.filter { url in
-                let values = try? url.resourceValues(forKeys: [.isDirectoryKey])
-                return values?.isDirectory == true
             }
         }.value
     }
@@ -94,7 +97,7 @@ actor FileSystemHelper {
     /// Check if a path exists
     func exists(at url: URL) async -> Bool {
         await Task.detached {
-            let fm = FileManager()
+            let fm = FileManager.default
             return fm.fileExists(atPath: url.path)
         }.value
     }
@@ -102,7 +105,7 @@ actor FileSystemHelper {
     /// Check if a path is a directory
     func isDirectory(at url: URL) async -> Bool {
         await Task.detached {
-            let fm = FileManager()
+            let fm = FileManager.default
             var isDir: ObjCBool = false
             let exists = fm.fileExists(atPath: url.path, isDirectory: &isDir)
             return exists && isDir.boolValue
@@ -112,7 +115,7 @@ actor FileSystemHelper {
     /// Delete a file or directory
     func delete(at url: URL) async throws {
         try await Task.detached {
-            let fm = FileManager()
+            let fm = FileManager.default
             try fm.removeItem(at: url)
         }.value
     }
@@ -122,7 +125,7 @@ actor FileSystemHelper {
 
 /// Utility for finding common developer tool paths
 enum DeveloperPaths {
-    static let home = FileManager.default.homeDirectoryForCurrentUser
+    static let home = URL.userHome
     
     // Xcode paths
     static let derivedData = home

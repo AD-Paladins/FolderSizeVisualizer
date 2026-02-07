@@ -86,9 +86,9 @@ final class ArtifactScanViewModel {
         selectedTool = nil
         selectedArtifact = nil
         
-        scanTask = Task {
+        scanTask = Task { @MainActor in
             let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
-                Task { @MainActor in
+                await MainActor.run {
                     self?.progress = value
                     self?.currentScanItem = itemName
                 }
@@ -97,16 +97,22 @@ final class ArtifactScanViewModel {
             do {
                 let result = try await scanService.scanAll(progress: progressHandler)
                 
-                toolSummaries = result.toolSummaries
-                totalSize = result.totalSize
-                totalSafeToDelete = result.totalSafeToDelete
-                scanDate = result.scanDate
+                print("✅ Scan completed: \(result.toolSummaries.count) tools found")
+                for summary in result.toolSummaries {
+                    print("  - \(summary.tool.displayName): \(summary.totalArtifacts) artifacts, \(summary.formattedTotalSize)")
+                }
+                
+                self.toolSummaries = result.toolSummaries
+                self.totalSize = result.totalSize
+                self.totalSafeToDelete = result.totalSafeToDelete
+                self.scanDate = result.scanDate
                 
             } catch {
-                toolSummaries = []
+                print("❌ Scan error: \(error)")
+                self.toolSummaries = []
             }
             
-            isScanning = false
+            self.isScanning = false
         }
     }
     
@@ -117,9 +123,9 @@ final class ArtifactScanViewModel {
         progress = 0
         currentScanItem = "Rescanning \(tool.displayName)..."
         
-        scanTask = Task {
+        scanTask = Task { @MainActor in
             let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
-                Task { @MainActor in
+                await MainActor.run {
                     self?.progress = value
                     self?.currentScanItem = itemName
                 }
@@ -128,21 +134,21 @@ final class ArtifactScanViewModel {
             do {
                 if let summary = try await scanService.scanTool(tool, progress: progressHandler) {
                     // Update or add the tool summary
-                    if let index = toolSummaries.firstIndex(where: { $0.tool == tool }) {
-                        toolSummaries[index] = summary
+                    if let index = self.toolSummaries.firstIndex(where: { $0.tool == tool }) {
+                        self.toolSummaries[index] = summary
                     } else {
-                        toolSummaries.append(summary)
+                        self.toolSummaries.append(summary)
                     }
                     
                     // Recalculate totals
-                    totalSize = toolSummaries.reduce(0) { $0 + $1.totalSize }
-                    totalSafeToDelete = toolSummaries.reduce(0) { $0 + $1.safeToDeleteSize }
+                    self.totalSize = self.toolSummaries.reduce(0) { $0 + $1.totalSize }
+                    self.totalSafeToDelete = self.toolSummaries.reduce(0) { $0 + $1.safeToDeleteSize }
                 }
             } catch {
-                // Handle error
+                print("Rescan error for \(tool.displayName): \(error)")
             }
             
-            isScanning = false
+            self.isScanning = false
         }
     }
     
@@ -160,11 +166,11 @@ final class ArtifactScanViewModel {
         isDeletingArtifacts = true
         deletionProgress = 0
         
-        Task {
+        Task { @MainActor in
             let result = await scanService.deleteArtifact(artifact)
             
             if result.success {
-                lastDeletionResult = DeletionResult(
+                self.lastDeletionResult = DeletionResult(
                     success: true,
                     deletedCount: 1,
                     reclaimedSize: artifact.sizeBytes,
@@ -172,9 +178,9 @@ final class ArtifactScanViewModel {
                 )
                 
                 // Rescan the tool
-                rescanTool(artifact.toolName)
+                self.rescanTool(artifact.toolName)
             } else {
-                lastDeletionResult = DeletionResult(
+                self.lastDeletionResult = DeletionResult(
                     success: false,
                     deletedCount: 0,
                     reclaimedSize: 0,
@@ -182,7 +188,7 @@ final class ArtifactScanViewModel {
                 )
             }
             
-            isDeletingArtifacts = false
+            self.isDeletingArtifacts = false
         }
     }
     
@@ -192,21 +198,21 @@ final class ArtifactScanViewModel {
         isDeletingArtifacts = true
         deletionProgress = 0
         
-        Task {
+        Task { @MainActor in
             let result = await scanService.deleteSafeArtifacts(for: tool)
             
-            lastDeletionResult = DeletionResult(
+            self.lastDeletionResult = DeletionResult(
                 success: result.errors.isEmpty,
                 deletedCount: result.deletedCount,
                 reclaimedSize: result.reclaimedSize,
                 errors: result.errors
             )
             
-            isDeletingArtifacts = false
+            self.isDeletingArtifacts = false
             
             // Rescan the tool
             if result.deletedCount > 0 {
-                rescanTool(tool)
+                self.rescanTool(tool)
             }
         }
     }

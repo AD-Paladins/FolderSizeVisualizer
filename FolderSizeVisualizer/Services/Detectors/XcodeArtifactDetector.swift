@@ -49,11 +49,15 @@ actor XcodeArtifactDetector: ArtifactDetector {
     private func detectDerivedData() async -> [DeveloperArtifact] {
         let derivedDataPath = await DeveloperPaths.derivedData
         
+        print("    📂 Checking DerivedData at: \(derivedDataPath.path)")
+        
         guard await fileHelper.exists(at: derivedDataPath) else {
+            print("    ❌ DerivedData directory does not exist")
             return []
         }
         
         let projectDirs = await fileHelper.listDirectories(at: derivedDataPath)
+        print("    📁 Found \(projectDirs.count) project directories")
         var artifacts: [DeveloperArtifact] = []
         
         for projectDir in projectDirs {

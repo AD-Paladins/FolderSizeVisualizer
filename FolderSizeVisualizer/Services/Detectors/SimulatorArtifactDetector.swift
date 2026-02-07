@@ -71,7 +71,10 @@ actor SimulatorArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        await fileHelper.exists(at: DeveloperPaths.simulators)
+        let path = await DeveloperPaths.simulators
+        let exists = await fileHelper.exists(at: path)
+        print("  🔍 Simulator path check: \(path.path) - exists: \(exists)")
+        return exists
     }
     
     // MARK: - Parse Simulator Data

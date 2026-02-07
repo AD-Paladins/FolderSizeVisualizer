@@ -9,6 +9,22 @@ import Foundation
 
 actor ArtifactScanService {
     
+    struct PathConfig: Sendable {
+        // Default known locations
+        var derivedData: URL = URL(fileURLWithPath: "~/Library/Developer/Xcode/DerivedData").standardizedFileURL
+        var archives: URL = URL(fileURLWithPath: "~/Library/Developer/Xcode/Archives").standardizedFileURL
+        var simulatorRuntimesRoot: URL = URL(fileURLWithPath: "/System/Library/AssetsV2/com_apple_MobileAsset_iOSSimulatorRuntime").standardizedFileURL
+        var assetsRoot: URL = URL(fileURLWithPath: "/System/Library/AssetsV2").standardizedFileURL
+
+        // Per-tool override roots (if user wants custom locations)
+        var overrides: [String: URL] = [:]
+
+        func url(for key: String, default url: URL) -> URL {
+            if let override = overrides[key] { return override }
+            return url
+        }
+    }
+    
     // MARK: - Scan Result
     
     struct ScanResult: Sendable {
@@ -30,6 +46,60 @@ actor ArtifactScanService {
     
     private var detectors: [any ArtifactDetector] = []
     
+    private var pathConfig = PathConfig()
+
+    // MARK: - Path Overrides API
+
+    enum ToolPathKey: String { case xcodeDerivedData, xcodeArchives, simulatorRuntimes, assetsRoot, android, node, docker, homebrew, python, rust }
+
+    func setOverride(_ url: URL, for key: ToolPathKey) {
+        pathConfig.overrides[key.rawValue] = url
+        clearCache()
+    }
+
+    func clearOverride(for key: ToolPathKey) {
+        pathConfig.overrides.removeValue(forKey: key.rawValue)
+        clearCache()
+    }
+
+    func resolvedURL(for key: ToolPathKey) -> URL {
+        switch key {
+        case .xcodeDerivedData:
+            return pathConfig.url(for: key.rawValue, default: pathConfig.derivedData)
+        case .xcodeArchives:
+            return pathConfig.url(for: key.rawValue, default: pathConfig.archives)
+        case .simulatorRuntimes:
+            return pathConfig.url(for: key.rawValue, default: pathConfig.simulatorRuntimesRoot)
+        case .assetsRoot:
+            return pathConfig.url(for: key.rawValue, default: pathConfig.assetsRoot)
+        case .android, .node, .docker, .homebrew, .python, .rust:
+            // For non-Xcode tools, provide the override only; callers decide sensible defaults
+            return pathConfig.url(for: key.rawValue, default: FileManager.default.homeDirectoryForCurrentUser)
+        }
+    }
+
+    // MARK: - Well-known paths (with existence checks)
+
+    func derivedDataDirectory() -> URL? {
+        let url = resolvedURL(for: .xcodeDerivedData)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    func archivesDirectory() -> URL? {
+        let url = resolvedURL(for: .xcodeArchives)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    func simulatorRuntimesDirectory() -> URL? {
+        let url = resolvedURL(for: .simulatorRuntimes)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+
+    func systemAssetsDirectory() -> URL? {
+        let url = resolvedURL(for: .assetsRoot)
+        return FileManager.default.fileExists(atPath: url.path) ? url : nil
+    }
+    
     private var cachedResult: ScanResult?
     private let fileHelper = FileSystemHelper()
     
@@ -40,7 +110,7 @@ actor ArtifactScanService {
     /// Lazily construct detectors on first use to avoid calling any main-actor isolated initializers from a synchronous context
     private func ensureDetectorsInitialized() async {
         if detectors.isEmpty {
-            async let myartifacts: [ArtifactDetector] =  [
+            async let myartifacts: [any ArtifactDetector] =  [
                 XcodeArtifactDetector(),
                 SimulatorArtifactDetector(),
                 AndroidArtifactDetector(),
@@ -74,6 +144,8 @@ actor ArtifactScanService {
             // Check if tool is installed
             let isInstalled = await detector.isToolInstalled()
             
+            print("🔍 Checking \(toolName): \(isInstalled ? "✅ installed" : "⏭️  not installed")")
+            
             guard isInstalled else {
                 // Skip if not installed
                 let progressValue = Double(index + 1) / Double(totalDetectors)
@@ -92,11 +164,15 @@ actor ArtifactScanService {
                 }
                 
                 if !artifacts.isEmpty {
+                    print("  ✅ Found \(artifacts.count) artifacts for \(toolName)")
                     let summary = await ToolArtifactSummary(tool: tool, artifacts: artifacts)
                     allToolSummaries.append(summary)
+                } else {
+                    print("  ⚠️  No artifacts found for \(toolName)")
                 }
             } catch {
                 // Log error but continue with other detectors
+                print("  ❌ Error scanning \(toolName): \(error)")
                 await progress(Double(index + 1) / Double(totalDetectors), "Error scanning \(toolName)")
             }
         }
@@ -213,5 +289,8 @@ actor ArtifactScanService {
         
         return (result.deletedCount, reclaimableSize, result.errors)
     }
+    
+    /// Xcode Containers path is intentionally ignored as it is typically empty in sandboxed contexts.
+    func xcodeContainersDirectory() -> URL? { return nil }
 }
 

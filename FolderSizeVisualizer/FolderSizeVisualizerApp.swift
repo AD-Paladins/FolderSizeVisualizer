@@ -8,7 +8,7 @@ struct FolderSizeVisualizerApp: App {
             ArtifactContentView()
             
             // To use old folder-based view instead, uncomment:
-            // ContentView(navigationStack: [])
+             ContentView(navigationStack: [])
         }
     }
 }
