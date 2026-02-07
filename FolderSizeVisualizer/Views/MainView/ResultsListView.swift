@@ -96,8 +96,7 @@ struct ResultsListView: View {
     }
 
     private func ratio(of folder: FolderEntry) -> Double {
-        guard totalSize > 0 else { return 0 }
-        return Double(folder.size) / Double(totalSize)
+        return FolderSizeVisualizer.ratio(size: folder.size, total: totalSize)
     }
     
     private var folderNameString: String {
@@ -111,6 +110,14 @@ struct ResultsListView: View {
         ? Color.accentColor.opacity(0.25)
         : (hoveredID == id ? Color.secondary.opacity(0.08) : Color.clear)
     }
+}
+
+// MARK: - Pure helpers (testable)
+
+/// Returns the ratio of `size` to `total`, clamped at 0 when `total` is 0.
+func ratio(size: Int64, total: Int64) -> Double {
+    guard total > 0 else { return 0 }
+    return Double(size) / Double(total)
 }
 
 #Preview {
