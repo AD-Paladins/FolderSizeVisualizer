@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import AppKit
 
 // MARK: - Artifact Detector Protocol
 
@@ -28,6 +29,95 @@ protocol ArtifactDetector: Sendable {
 /// Helper utilities for artifact detection
 actor FileSystemHelper {
     
+    enum BookmarkKey: String {
+        case xcodeDerivedData
+        case xcodeArchives
+        case simulatorRuntimes
+        case assetsRoot
+        case androidSDK
+        case androidAVD
+        case dockerData
+        case npmCache
+        case yarnCache
+        case pnpmCache
+        case homebrewCache
+        case pipCache
+        case poetryCache
+        case cargoRegistry
+        case cargoGit
+        case gitCache
+    }
+    
+    // MARK: - Security-scoped bookmarks
+
+    private static func defaultsKey(for key: BookmarkKey) -> String { "bookmark_\(key.rawValue)" }
+
+    /// Presents a folder picker (macOS) and stores a security-scoped bookmark for the given key.
+    /// Async shim that hops to the main actor to interact with AppKit safely.
+    @discardableResult
+    nonisolated func requestAccessAndStoreBookmark(for key: BookmarkKey, startingAt directory: URL? = nil) async -> URL? {
+        await MainActor.run { [directory] in
+            return self._presentFolderPickerAndStoreBookmark(for: key, startingAt: directory)
+        }
+    }
+
+    /// Main-actor implementation that interacts with NSOpenPanel.
+    @MainActor
+    private func _presentFolderPickerAndStoreBookmark(for key: BookmarkKey, startingAt directory: URL?) -> URL? {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = false
+        panel.canChooseDirectories = true
+        panel.allowsMultipleSelection = false
+        panel.prompt = "Select"
+        if let dir = directory { panel.directoryURL = dir }
+        if panel.runModal() == .OK, let url = panel.url {
+            do {
+                let data = try url.bookmarkData(options: .withSecurityScope,
+                                                includingResourceValuesForKeys: nil,
+                                                relativeTo: nil)
+                UserDefaults.standard.set(data, forKey: Self.defaultsKey(for: key))
+                return url
+            } catch {
+                print("Failed to create bookmark for \(key): \(error)")
+                return nil
+            }
+        }
+        return nil
+    }
+
+    /// Resolves a previously stored security-scoped bookmark for the given key.
+    func resolveBookmark(for key: BookmarkKey) -> URL? {
+        guard let data = UserDefaults.standard.data(forKey: Self.defaultsKey(for: key)) else { return nil }
+        var isStale = false
+        do {
+            let url = try URL(resolvingBookmarkData: data,
+                              options: [.withSecurityScope],
+                              relativeTo: nil,
+                              bookmarkDataIsStale: &isStale)
+            if isStale {
+                // Refresh bookmark
+                let newData = try url.bookmarkData(options: .withSecurityScope,
+                                                   includingResourceValuesForKeys: nil,
+                                                   relativeTo: nil)
+                UserDefaults.standard.set(newData, forKey: Self.defaultsKey(for: key))
+            }
+            return url
+        } catch {
+            print("Failed to resolve bookmark for \(key): \(error)")
+            return nil
+        }
+    }
+
+    /// Executes a block with security-scoped access if a bookmark exists for the key.
+    func withScopedAccess<T>(for key: BookmarkKey, perform: (URL) -> T?) -> T? {
+        guard let url = resolveBookmark(for: key) else { return nil }
+        #if canImport(AppKit)
+        let started = url.startAccessingSecurityScopedResource()
+        defer { if started { url.stopAccessingSecurityScopedResource() } }
+        #endif
+        return perform(url)
+    }
+
     /// Calculate total size of a directory
     func directorySize(at url: URL) async -> Int64 {
         await Task.detached(priority: .utility) {
@@ -76,20 +166,85 @@ actor FileSystemHelper {
     func listDirectories(at url: URL) async -> [URL] {
         await Task.detached {
             let fm = FileManager.default
-            do {
-                let topLevelURLs: [URL]
-                let children = try fm.contentsOfDirectory(
-                    at: url,
-                    includingPropertiesForKeys: [.isDirectoryKey],
-                    options: [.skipsHiddenFiles]
-                )
-                topLevelURLs = children.filter { url in
-                    let vals = try? url.resourceValues(forKeys: [.isDirectoryKey])
-                    return vals?.isDirectory == true
-                }
-                return topLevelURLs
-            } catch {
+            
+            // Ensure the base URL exists and is a directory before listing
+            var isDir: ObjCBool = false
+            guard fm.fileExists(atPath: url.path, isDirectory: &isDir), isDir.boolValue else {
                 return []
+            }
+
+            // Attempt to access security-scoped resource if available
+            var didStartAccess = false
+            #if canImport(AppKit)
+            if url.startAccessingSecurityScopedResource() {
+                didStartAccess = true
+            }
+            defer {
+                if didStartAccess {
+                    url.stopAccessingSecurityScopedResource()
+                }
+            }
+            #endif
+            
+            // Try to list directly; if it fails due to permissions, allow user to grant access via bookmark
+            let contents: [URL]
+            if let direct = try? fm.contentsOfDirectory(
+                at: url,
+                includingPropertiesForKeys: [.isDirectoryKey],
+                options: [.skipsHiddenFiles]
+            ) {
+                contents = direct
+            } else {
+                // Attempt via security-scoped bookmark if one exists for a known key matching this URL
+                // Simple heuristic: map known keys to expected default paths and compare
+                let mapping: [(BookmarkKey, URL)] = await [
+                    (.xcodeDerivedData, DeveloperPaths.derivedData),
+                    (.xcodeArchives, DeveloperPaths.xcodeArchives),
+                    (.simulatorRuntimes, URL(fileURLWithPath: "/System/Library/AssetsV2/com_apple_MobileAsset_iOSSimulatorRuntime")),
+                    (.assetsRoot, URL(fileURLWithPath: "/System/Library/AssetsV2")),
+                    (.androidSDK, DeveloperPaths.androidSDK),
+                    (.androidAVD, DeveloperPaths.androidAVD),
+                    (.dockerData, DeveloperPaths.dockerData),
+                    (.npmCache, DeveloperPaths.npmCache),
+                    (.yarnCache, DeveloperPaths.yarnCache),
+                    (.pnpmCache, DeveloperPaths.pnpmCache),
+                    (.homebrewCache, DeveloperPaths.homebrewCache),
+                    (.pipCache, DeveloperPaths.pipCache),
+                    (.poetryCache, DeveloperPaths.poetryCache),
+                    (.cargoRegistry, DeveloperPaths.cargoRegistry),
+                    (.cargoGit, DeveloperPaths.cargoGit),
+                    (.gitCache, DeveloperPaths.gitCache)
+                ]
+                let matchedKey = mapping.first { $0.1.standardizedFileURL.path == url.standardizedFileURL.path }?.0
+                if let key = matchedKey, let securedURL = await self.resolveBookmark(for: key) {
+                    #if canImport(AppKit)
+                    let started = securedURL.startAccessingSecurityScopedResource()
+                    defer { if started { securedURL.stopAccessingSecurityScopedResource() } }
+                    #endif
+                    contents = (try? fm.contentsOfDirectory(
+                        at: securedURL,
+                        includingPropertiesForKeys: [.isDirectoryKey],
+                        options: [.skipsHiddenFiles]
+                    )) ?? []
+                } else {
+                    // No bookmark available; return empty and let caller prompt user via requestAccessAndStoreBookmark
+                    return []
+                }
+            }
+
+            // Only return children that are readable directories
+            return contents.compactMap { childURL in
+                // Skip if we cannot get attributes (e.g., permissions)
+                guard let values = try? childURL.resourceValues(forKeys: [.isDirectoryKey]),
+                      values.isDirectory == true else {
+                    return nil
+                }
+                // Verify readability to avoid throwing later
+                var childIsDir: ObjCBool = false
+                guard fm.fileExists(atPath: childURL.path, isDirectory: &childIsDir), childIsDir.boolValue else {
+                    return nil
+                }
+                return childURL
             }
         }.value
     }

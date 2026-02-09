@@ -12,15 +12,18 @@ struct ContentView: View {
     @State private var selectedFolder: FolderEntry.ID?
     @State private var navigationStack: [URL] = []
     
-    init(viewModel: ScanViewModel = ScanViewModel(), selectedFolder: FolderEntry.ID? = nil, navigationStack: [URL]) {
+    @Binding var isDeveloperModeEnabled: Bool
+    
+    init(viewModel: ScanViewModel = ScanViewModel(), selectedFolder: FolderEntry.ID? = nil, navigationStack: [URL], isDeveloperModeEnabled: Binding<Bool>) {
         self.viewModel = viewModel
         self.selectedFolder = selectedFolder
         self.navigationStack = navigationStack
+        self._isDeveloperModeEnabled = isDeveloperModeEnabled
     }
     
     var body: some View {
         NavigationSplitView {
-            SidebarView(viewModel: viewModel)
+            SidebarView(viewModel: viewModel, isDeveloperModeEnabled: $isDeveloperModeEnabled)
                 .safeAreaInset(edge: .bottom) {
                     if viewModel.rootURL != nil {
                         VStack {
@@ -114,5 +117,5 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView(viewModel: ScanViewModel(), navigationStack: [])
+    ContentView(viewModel: ScanViewModel(), navigationStack: [], isDeveloperModeEnabled: .constant(false))
 }

@@ -9,13 +9,22 @@ import SwiftUI
 
 struct ArtifactSidebarView: View {
     @Bindable var viewModel: ArtifactScanViewModel
+    @Binding var isDeveloperModeEnabled: Bool
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Toggle("Developer mode: ", isOn: $isDeveloperModeEnabled)
+                .font(.headline)
             
             // Header
             Text("Developer Tools")
                 .font(.headline)
+            Button {
+                viewModel.requestDiskAccess()
+            } label: {
+                Label("Grant Disk Access", systemImage: "magnifyingglass")
+            }
+            .buttonStyle(.borderedProminent)
             
             // Scan button
             Button {
@@ -27,24 +36,7 @@ struct ArtifactSidebarView: View {
             .disabled(viewModel.isScanning)
             
             if viewModel.isScanning {
-                VStack(alignment: .leading, spacing: 8) {
-                    ProgressView(value: viewModel.progress) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Scanning...")
-                                .font(.caption)
-                            Text(viewModel.currentScanItem)
-                                .font(.caption2)
-                                .foregroundStyle(.secondary)
-                                .lineLimit(2)
-                        }
-                    }
-                    .progressViewStyle(.linear)
-                    
-                    Button("Cancel") {
-                        viewModel.cancelScan()
-                    }
-                    .buttonStyle(.borderless)
-                }
+                scanningView()
             }
             
             Divider()
@@ -74,38 +66,7 @@ struct ArtifactSidebarView: View {
             
             // Summary section
             if viewModel.hasResults {
-                VStack(alignment: .leading, spacing: 8) {
-                    Divider()
-                    
-                    VStack(alignment: .leading, spacing: 4) {
-                        HStack {
-                            Text("Total Size")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(viewModel.formattedTotalSize)
-                                .font(.caption)
-                                .bold()
-                        }
-                        
-                        HStack {
-                            Text("Safe to Delete")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            Text(viewModel.formattedSafeToDeleteSize)
-                                .font(.caption)
-                                .bold()
-                                .foregroundStyle(.green)
-                        }
-                    }
-                    
-                    if let scanDate = viewModel.scanDate {
-                        Text("Scanned \(scanDate.formatted(.relative(presentation: .named)))")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
-                    }
-                }
+                footerView()
             }
         }
         .padding()
@@ -122,6 +83,64 @@ struct ArtifactSidebarView: View {
         } message: {
             if let result = viewModel.lastDeletionResult {
                 Text(result.message)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    func scanningView() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ProgressView(value: viewModel.progress) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Scanning...")
+                        .font(.caption)
+                    Text(viewModel.currentScanItem)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(2)
+                }
+            }
+            .progressViewStyle(.linear)
+            
+            Button("Cancel") {
+                viewModel.cancelScan()
+            }
+            .buttonStyle(.borderless)
+        }
+    }
+    
+    @ViewBuilder
+    func footerView() -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Divider()
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Total Size")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(viewModel.formattedTotalSize)
+                        .font(.caption)
+                        .bold()
+                }
+                
+                HStack {
+                    Text("Safe to Delete")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(viewModel.formattedSafeToDeleteSize)
+                        .font(.caption)
+                        .bold()
+                        .foregroundStyle(.green)
+                }
+            }
+            
+            if let scanDate = viewModel.scanDate {
+                Text("Scanned \(scanDate.formatted(.relative(presentation: .named)))")
+                    .font(.caption2)
+                    .foregroundStyle(.tertiary)
             }
         }
     }
@@ -170,6 +189,6 @@ struct ToolSidebarRow: View {
 }
 
 #Preview {
-    ArtifactSidebarView(viewModel: ArtifactScanViewModel())
+    ArtifactSidebarView(viewModel: ArtifactScanViewModel(), isDeveloperModeEnabled: .constant(true))
         .frame(width: 250)
 }

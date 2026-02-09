@@ -2,13 +2,17 @@ import SwiftUI
 
 @main
 struct FolderSizeVisualizerApp: App {
+    @State var isDeveloperMode = false
+    
     var body: some Scene {
         WindowGroup {
-            // New artifact-based developer intelligence view
-            ArtifactContentView()
-            
-            // To use old folder-based view instead, uncomment:
-             ContentView(navigationStack: [])
+            VStack {
+                if isDeveloperMode {
+                    ArtifactContentView(isDeveloperModeEnabled: $isDeveloperMode)
+                } else {
+                    ContentView(navigationStack: [], isDeveloperModeEnabled: $isDeveloperMode)
+                }
+            }
         }
     }
 }

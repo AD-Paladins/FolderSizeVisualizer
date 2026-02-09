@@ -9,10 +9,11 @@ import SwiftUI
 
 struct ArtifactContentView: View {
     @State private var viewModel = ArtifactScanViewModel()
+    @Binding var isDeveloperModeEnabled: Bool
     
     var body: some View {
         NavigationSplitView {
-            ArtifactSidebarView(viewModel: viewModel)
+            ArtifactSidebarView(viewModel: viewModel, isDeveloperModeEnabled: $isDeveloperModeEnabled)
                 .navigationSplitViewColumnWidth(min: 250, ideal: 280, max: 320)
         } content: {
             if let selectedTool = viewModel.selectedTool {
@@ -202,5 +203,5 @@ struct DetailSection<Content: View>: View {
 }
 
 #Preview {
-    ArtifactContentView()
+    ArtifactContentView(isDeveloperModeEnabled: .constant(true))
 }

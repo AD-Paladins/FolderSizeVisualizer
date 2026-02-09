@@ -74,6 +74,18 @@ final class ArtifactScanViewModel {
         return toolSummaries.first { $0.tool == tool }
     }
     
+    func requestDiskAccess() {
+        FullDiskAccess.promptIfNotGranted(
+            title: "Enable Full Disk Access for MacSymbolicator",
+            message: "MacSymbolicator requires Full Disk Access to search for DSYMs using Spotlight.",
+            settingsButtonTitle: "Open Settings",
+            skipButtonTitle: "Later",
+            skipHandler: { print("User skipped permission screen!") },
+            canBeSuppressed: false, // `true` will display a "Do not ask again." checkbox and honor it
+            icon: nil
+        )
+    }
+    
     // MARK: - Scanning
     
     func startScan() {

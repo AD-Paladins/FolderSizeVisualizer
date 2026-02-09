@@ -10,9 +10,12 @@ import SwiftUI
 struct SidebarView: View {
 
     @Bindable var viewModel: ScanViewModel
-
+    @Binding var isDeveloperModeEnabled: Bool
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            Toggle("Developer mode: ", isOn: $isDeveloperModeEnabled)
+                .font(.headline)
 
             Text("Scan")
                 .font(.headline)
@@ -77,6 +80,6 @@ struct SidebarView: View {
 }
 
 #Preview {
-    SidebarView(viewModel: ScanViewModel())
+    SidebarView(viewModel: ScanViewModel(), isDeveloperModeEnabled: .constant(false))
 }
 
