@@ -15,11 +15,6 @@ import OSLog
 // macOS 10.14 for which we cannot automatically add the entry)
 
 public enum FullDiskAccess {
-    private enum MacOS {
-        case monterey // 12
-        case ventura // 13
-        case sonoma // 14
-    }
 
     /// Checks and returns the status of Full Disk Access for the current app. Accessing this property automatically
     /// adds the current app to the Full Disk Access entries in Privacy & Security.

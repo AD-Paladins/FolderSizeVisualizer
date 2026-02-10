@@ -250,7 +250,7 @@ actor SimulatorArtifactDetector: ArtifactDetector {
     // MARK: - Cache Detection
     
     private func detectSimulatorCaches() async -> [DeveloperArtifact] {
-        let cachePath = await DeveloperPaths.simulatorCaches
+        let cachePath = await DeveloperPaths.simulatorVolumes
         
         guard await fileHelper.exists(at: cachePath) else {
             return []

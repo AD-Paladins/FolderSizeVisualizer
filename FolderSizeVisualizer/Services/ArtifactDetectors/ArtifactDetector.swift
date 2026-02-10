@@ -293,10 +293,8 @@ enum DeveloperPaths {
         .appendingPathComponent("Library/Developer/Xcode/iOS Device Logs")
     
     // Simulators
-    static let simulators = home
-        .appendingPathComponent("Library/Developer/CoreSimulator/Devices")
-    static let simulatorCaches = home
-        .appendingPathComponent("Library/Developer/CoreSimulator/Caches")
+    static let simulators = URL(string: "/System/Library/AssetsV2/com_apple_MobileAsset_iOSSimulatorRuntime")!
+    static let simulatorVolumes = URL(string: "/Library/Developer/CoreSimulator/Volumes")!
     
     // Android
     static let androidSDK = home
