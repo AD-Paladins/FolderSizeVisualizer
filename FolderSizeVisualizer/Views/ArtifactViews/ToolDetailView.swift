@@ -190,10 +190,8 @@ struct ArtifactCard: View {
             }
             
             // Description
-            Text(artifact.explanationText)
-                .font(.body)
+            MarkdownText(markdownString: artifact.explanationText, lineLimit: 3)
                 .foregroundStyle(.secondary)
-                .lineLimit(3)
             
             // Size and rebuild cost
             HStack {

@@ -32,17 +32,18 @@ actor NodeJSArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
-        process.arguments = ["node"]
+        let standardPaths = [
+            "/opt/homebrew/bin/node",
+            "/usr/local/bin/node"
+        ]
         
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
+        for path in standardPaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return true
+            }
         }
+        
+        return false
     }
     
     private func detectNpmCache() async -> DeveloperArtifact? {
@@ -112,17 +113,17 @@ actor DockerArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
-        process.arguments = ["docker"]
+        let standardPaths = [
+            "/usr/local/bin/docker"
+        ]
         
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
+        for path in standardPaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return true
+            }
         }
+        
+        return false
     }
     
     private func detectDockerData() async -> DeveloperArtifact? {
@@ -169,39 +170,52 @@ actor HomebrewArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
-        process.arguments = ["brew"]
+        let standardPaths = [
+            "/opt/homebrew/bin/brew",
+            "/usr/local/bin/brew"
+        ]
         
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
+        for path in standardPaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return true
+            }
         }
+        
+        return false
     }
     
     private func detectHomebrewCache() async -> DeveloperArtifact? {
-        let cachePath = await DeveloperPaths.homebrewCache
+        let cellarPath = await DeveloperPaths.homebrewCellar
         
-        guard await fileHelper.exists(at: cachePath) else {
+        guard await fileHelper.exists(at: cellarPath) else {
             return nil
         }
         
-        let size = await fileHelper.directorySize(at: cachePath)
-        let lastUsed = await fileHelper.lastAccessDate(at: cachePath)
+        let size = await fileHelper.directorySize(at: cellarPath)
+        let lastUsed = await fileHelper.lastAccessDate(at: cellarPath)
         
         return await DeveloperArtifact(
             toolName: .homebrew,
-            artifactType: "Download Cache",
+            artifactType: "Cellar",
             sizeBytes: size,
-            safeToDelete: true,
-            riskLevel: .safe,
-            rebuildCostEstimate: "Packages redownloaded if needed",
+            safeToDelete: false,
+            riskLevel: .unsafe,
+            rebuildCostEstimate: "Reinstall packages will be required",
             lastUsedDate: lastUsed,
-            explanationText: "Homebrew's download cache for packages. Safe to delete - run 'brew cleanup' for selective cleanup.",
-            underlyingPaths: [cachePath]
+            explanationText:
+"""
+# Homebrew Cellar Reference
+
+## Definition
+The **Cellar** is the local directory where Homebrew performs the physical installation of each package, organizing them into folders by name and version.
+
+## Troubleshooting (Manual Deletion)
+If a folder within the Cellar is manually deleted, you must run:
+`brew reinstall <formula_name>` 
+
+This command forces Homebrew to download the missing files and re-link the binary pointers (symlinks) to your execution path (e.g., `/opt/homebrew/bin`).
+""",
+            underlyingPaths: [cellarPath]
         )
     }
 }
@@ -316,17 +330,17 @@ actor RustArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
-        process.arguments = ["cargo"]
+        let standardPaths = [
+            "~/.cargo/bin/cargo"
+        ]
         
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
-            return false
+        for path in standardPaths {
+            if FileManager.default.fileExists(atPath: path) {
+                return true
+            }
         }
+        
+        return false
     }
     
     private func detectCargoRegistry() async -> DeveloperArtifact? {

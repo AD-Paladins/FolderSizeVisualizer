@@ -317,6 +317,7 @@ enum DeveloperPaths {
     // Homebrew
     static let homebrewCache = home
         .appendingPathComponent("Library/Caches/Homebrew")
+    static let homebrewCellar = URL(string: "/opt/homebrew/Cellar")!
     
     // Python
     static let pipCache = home

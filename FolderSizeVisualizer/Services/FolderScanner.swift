@@ -23,17 +23,11 @@ actor FolderScanner {
         if let cachedResult = scanCache[root] {
             return cachedResult
         }
-//        // Perform the heavy, synchronous enumeration work off the async actor context.
-//        // We collect folderSizes for TOP-LEVEL folders only (direct children of root)
-//        let (folderSizes, totalProcessed, lastItem) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int, URL?) in
-//            var folderSizes: [URL: Int64] = [:]
-//            var processed = 0
-//            var lastProcessedItem: URL? = nil
-//
 
         // Perform the heavy, synchronous enumeration work off the async actor context.
         // We collect folderSizes for TOP-LEVEL folders only (direct children of root)
-        let (folderSizes, totalProcessed, lastItem) = await Task.detached(priority: .utility) { () -> ([URL: Int64], Int, URL?) in
+        let (folderSizes, totalProcessed, _) =
+        await Task.detached(priority: .utility) { () -> ([URL: Int64], Int, URL?) in
             let fileManager = FileManager.default
             let keys: Set<URLResourceKey> = [
                 .isDirectoryKey,

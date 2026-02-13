@@ -44,7 +44,7 @@ actor ArtifactScanService {
     
     // MARK: - Properties
     
-    private var detectors: [any ArtifactDetector] = []
+    private var detectors: [ArtifactDetector] = []
     
     private var pathConfig = PathConfig()
 
@@ -110,7 +110,7 @@ actor ArtifactScanService {
     /// Lazily construct detectors on first use to avoid calling any main-actor isolated initializers from a synchronous context
     private func ensureDetectorsInitialized() async {
         if detectors.isEmpty {
-            async let myartifacts: [any ArtifactDetector] =  [
+            async let myartifacts: [ArtifactDetector] =  [
                 XcodeArtifactDetector(),
                 SimulatorArtifactDetector(),
                 AndroidArtifactDetector(),

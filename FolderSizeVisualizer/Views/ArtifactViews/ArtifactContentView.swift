@@ -18,12 +18,14 @@ struct ArtifactContentView: View {
         } content: {
             if let selectedTool = viewModel.selectedTool {
                 ToolDetailView(viewModel: viewModel, tool: selectedTool)
+                    .navigationSplitViewColumnWidth(min: 450, ideal: 480, max: 620)
             } else {
                 DashboardView(viewModel: viewModel)
             }
         } detail: {
             if let artifact = viewModel.selectedArtifact {
                 ArtifactDetailView(artifact: artifact)
+                    .navigationSplitViewColumnWidth(min: 450, ideal: 480, max: 620)
             } else if viewModel.selectedTool != nil {
                 ContentUnavailableView(
                     "Select an Artifact",
@@ -41,6 +43,42 @@ struct ArtifactContentView: View {
     }
 }
 
+extension String {
+    func markdownToAttributed() -> AttributedString {
+        do {
+            return try AttributedString(markdown: self)
+        } catch {
+            return AttributedString(self)
+        }
+    }
+}
+
+struct MarkdownText: View {
+    let markdownString: String
+    let lineLimit: Int
+    init(markdownString: String,lineLimit: Int = 0) {
+        self.markdownString = markdownString
+        self.lineLimit = lineLimit
+    }
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ForEach(splitString, id: \.self) { line in
+                Text(line.markdownToAttributed())
+            }
+        }
+    }
+    
+    var splitString: [String] {
+        let array = markdownString.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        let positiveLineLimit = abs(lineLimit)
+        if positiveLineLimit != 0, array.count > positiveLineLimit {
+            var truncated = Array(array.prefix(positiveLineLimit))
+            truncated[positiveLineLimit - 1] += " ..." // Append ellipsis to last line
+            return truncated
+        }
+        return array
+    }
+}
 // MARK: - Artifact Detail View
 
 struct ArtifactDetailView: View {
@@ -94,8 +132,8 @@ struct ArtifactDetailView: View {
                     
                     // What is this?
                     DetailSection(title: "What is this?", icon: "info.circle") {
-                        Text(artifact.explanationText)
-                            .font(.body)
+                        MarkdownText(markdownString: artifact.explanationText)
+//                            .font(.body)
                     }
                     
                     // Size information

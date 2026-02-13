@@ -111,14 +111,13 @@ final class ArtifactScanViewModel {
                 
                 print("✅ Scan completed: \(result.toolSummaries.count) tools found")
                 for summary in result.toolSummaries {
-                    print("  - \(summary.tool.displayName): \(summary.totalArtifacts) artifacts, \(summary.formattedTotalSize)")
+                    print("\t- \(summary.tool.displayName): \(summary.totalArtifacts) artifacts, \(summary.formattedTotalSize)")
                 }
                 
                 self.toolSummaries = result.toolSummaries
                 self.totalSize = result.totalSize
                 self.totalSafeToDelete = result.totalSafeToDelete
                 self.scanDate = result.scanDate
-                
             } catch {
                 print("❌ Scan error: \(error)")
                 self.toolSummaries = []
