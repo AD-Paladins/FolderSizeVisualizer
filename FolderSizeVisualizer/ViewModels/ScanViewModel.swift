@@ -53,11 +53,7 @@ final class ScanViewModel {
                     progress: progressHandler
                 )
 
-                if limitResults {
-                    folders = Array(result.folders.prefix(maxResults))
-                } else {
-                    folders = result.folders
-                }
+                folders = applyLimit(to: result.folders)
                 
                 // Check if result came from cache
                 let cachedResult = await scanner.getCachedResult(for: url)
@@ -68,6 +64,14 @@ final class ScanViewModel {
 
             isScanning = false
         }
+    }
+
+    /// Applies the current limit settings to the given folders array.
+    /// - Parameter folders: The full set of folders returned by a scan.
+    /// - Returns: Either the full array (when limit is off) or the first `maxResults` items.
+    func applyLimit(to folders: [FolderEntry]) -> [FolderEntry] {
+        guard limitResults else { return folders }
+        return Array(folders.prefix(maxResults))
     }
     
     /// Refresh scan for a URL (clears cache for that URL and its subcaches)
@@ -96,3 +100,4 @@ final class ScanViewModel {
         isScanning = false
     }
 }
+

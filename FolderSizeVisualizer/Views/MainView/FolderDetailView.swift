@@ -7,16 +7,17 @@
 
 import SwiftUI
 
+
+
 struct FolderDetailView: View {
     let folder: FolderEntry
     let totalSize: Int64
     let onScanFolder: (URL) -> Void
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                
-                // Header Section
+                // Header Section - Consolidated
                 VStack(alignment: .leading, spacing: 12) {
                     HStack(alignment: .top, spacing: 12) {
                         Image(systemName: "folder.fill")
@@ -40,27 +41,10 @@ struct FolderDetailView: View {
                     Divider()
                 }
                 
-                // Navigation Action - Scan This Folder
-                GroupBox {
-                    Button {
-                        onScanFolder(folder.url)
-                    } label: {
-                        HStack {
-                            Label("Scan This Folder", systemImage: "arrow.down.circle.fill")
-                                .font(.headline)
-                            Spacer()
-                            Image(systemName: "chevron.right")
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .padding(12)
-                    .background(.blue.opacity(0.1), in: RoundedRectangle(cornerRadius: 10))
-                }
-                
-                // Size Overview Card
+                // Size Overview - Consolidated with Statistics
                 GroupBox {
                     VStack(spacing: 16) {
+                        // Size and percentage in one place
                         HStack {
                             Label("Total Size", systemImage: "internaldrive")
                                 .foregroundStyle(.secondary)
@@ -70,6 +54,7 @@ struct FolderDetailView: View {
                                 .fontWeight(.semibold)
                         }
                         
+                        // Percentage visualization
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Text("Percentage of scan")
@@ -94,48 +79,31 @@ struct FolderDetailView: View {
                             }
                             .frame(height: 8)
                         }
+
+                        Divider()
+
+                        // Additional stats in a compact grid
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 12) {
+                            StatCard(
+                                icon: "doc.fill",
+                                label: "Size",
+                                value: formattedSize,
+                                color: .blue
+                            )
+                            StatCard(
+                                icon: "scale.3d",
+                                label: "Relative Size",
+                                value: relativeSize,
+                                color: .orange
+                            )
+                        }
                     }
                     .padding(4)
                 }
-                
-                // Statistics Grid
-                GroupBox("Statistics") {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 16) {
-                        StatCard(
-                            icon: "doc.fill",
-                            label: "Size",
-                            value: formattedSize,
-                            color: .blue
-                        )
-                        
-                        StatCard(
-                            icon: "chart.pie.fill",
-                            label: "Share",
-                            value: percentageText,
-                            color: .purple
-                        )
-                        
-                        StatCard(
-                            icon: "number",
-                            label: "Bytes",
-                            value: bytesText,
-                            color: .green
-                        )
-                        
-                        StatCard(
-                            icon: "scale.3d",
-                            label: "Relative",
-                            value: relativeSize,
-                            color: .orange
-                        )
-                    }
-                    .padding(4)
-                }
-                
-                // Quick Actions
+                // Quick Actions - Simplified
                 GroupBox("Quick Actions") {
                     VStack(spacing: 12) {
                         Button {
@@ -150,22 +118,8 @@ struct FolderDetailView: View {
                         }
                         .buttonStyle(.plain)
                         .padding(8)
-                        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
-                        
-                        Button {
-                            NSWorkspace.shared.activateFileViewerSelecting([folder.url])
-                        } label: {
-                            HStack {
-                                Label("Reveal in Finder", systemImage: "eye")
-                                Spacer()
-                                Image(systemName: "arrow.up.forward.square")
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                        .buttonStyle(.plain)
-                        .padding(8)
-                        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
-                        
+                        .background(.quaternary.opacity(0.5),in: RoundedRectangle(cornerRadius: 8))
+
                         Button {
                             NSPasteboard.general.clearContents()
                             NSPasteboard.general.setString(folder.url.path, forType: .string)
@@ -179,51 +133,41 @@ struct FolderDetailView: View {
                         }
                         .buttonStyle(.plain)
                         .padding(8)
-                        .background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 8))
+                        .background(.quaternary.opacity(0.5),in: RoundedRectangle(cornerRadius: 8))
                     }
                     .padding(4)
                 }
-                
-                // Information Section
+
+                // Information Section - Simplified (removed redundant fields)
                 GroupBox("Information") {
                     VStack(alignment: .leading, spacing: 12) {
-                        InfoRow(label: "Full Path", value: folder.url.path)
-                        Divider()
                         InfoRow(label: "Parent Directory", value: folder.url.deletingLastPathComponent().path)
-                        Divider()
-                        InfoRow(label: "Folder Name", value: folder.name)
                     }
                     .padding(4)
                 }
-                
+
                 Spacer(minLength: 20)
             }
             .padding(24)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
     }
-    
+
     // MARK: - Computed Properties
-    
+
     private var formattedSize: String {
         ByteCountFormatter.string(fromByteCount: folder.size, countStyle: .file)
     }
-    
+
     private var percentage: Double {
         guard totalSize > 0 else { return 0 }
         return Double(folder.size) / Double(totalSize)
     }
-    
+
     private var percentageText: String {
         String(format: "%.2f%%", percentage * 100)
     }
-    
-    private var bytesText: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        return formatter.string(from: NSNumber(value: folder.size)) ?? "\(folder.size)"
-    }
-    
+
     private var relativeSize: String {
         let ratio = percentage
         switch ratio {
@@ -235,7 +179,7 @@ struct FolderDetailView: View {
         default: return "Massive"
         }
     }
-    
+
     private var percentageGradient: LinearGradient {
         let ratio = percentage
         let color: Color = ratio < 0.1 ? .green : ratio < 0.3 ? .orange : .red
@@ -248,13 +192,12 @@ struct FolderDetailView: View {
 }
 
 // MARK: - Supporting Views
-
 struct StatCard: View {
     let icon: String
     let label: String
     let value: String
     let color: Color
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
@@ -263,11 +206,11 @@ struct StatCard: View {
                     .font(.title3)
                 Spacer()
             }
-            
+
             Text(label)
                 .font(.caption)
                 .foregroundStyle(.secondary)
-            
+
             Text(value)
                 .font(.headline)
                 .fontWeight(.semibold)
@@ -281,7 +224,7 @@ struct StatCard: View {
 struct InfoRow: View {
     let label: String
     let value: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
@@ -295,7 +238,6 @@ struct InfoRow: View {
 }
 
 // MARK: - Preview
-
 #Preview {
     FolderDetailView(
         folder: FolderEntry(
