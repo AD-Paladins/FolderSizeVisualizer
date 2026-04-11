@@ -19,6 +19,8 @@ struct ToolDetailView: View {
     @State private var isAnalyzingWithAI = false
     @State private var analysisResult: ToolIntelligenceResult?
     @State private var analysisError: String?
+    @State private var cachedAIResults: [DeveloperTool: ToolIntelligenceResult] = [:]
+    @State private var cachedAIErrors: [DeveloperTool: String] = [:]
     
     private func riskColor(for level: ArtifactRiskLevel) -> Color {
         switch level {
@@ -108,8 +110,12 @@ struct ToolDetailView: View {
                                     do {
                                         let result = try await ToolIntelligenceService.shared.analyze(tool: tool, summary: summary)
                                         self.analysisResult = result
+                                        self.cachedAIResults[self.tool] = result
+                                        self.cachedAIErrors[self.tool] = ""
                                     } catch {
                                         self.analysisError = error.localizedDescription
+                                        self.cachedAIErrors[self.tool] = error.localizedDescription
+                                        self.cachedAIResults[self.tool] = nil
                                     }
                                     self.isAnalyzingWithAI = false
                                 }
@@ -122,6 +128,12 @@ struct ToolDetailView: View {
                                 if case .available = intelligenceAvailability { return false }
                                 return true
                             }())
+                        }
+
+                        if analysisResult == nil && analysisError == nil {
+                            Text("No analysis yet for \(tool.displayName).")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
 
                         // Result / error
@@ -244,6 +256,9 @@ struct ToolDetailView: View {
         }
         .task(id: tool) {
             intelligenceAvailability = await ToolIntelligenceService.shared.availability()
+            analysisResult = cachedAIResults[tool]
+            analysisError = cachedAIErrors[tool]
+            isAnalyzingWithAI = false
         }
     }
 }

@@ -137,6 +137,9 @@
     "Model available on this device" : {
 
     },
+    "No analysis yet for %@." : {
+
+    },
     "No artifacts found" : {
 
     },
