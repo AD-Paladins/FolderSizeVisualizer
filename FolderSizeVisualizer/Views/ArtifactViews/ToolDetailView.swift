@@ -71,6 +71,22 @@ struct ToolDetailView: View {
                     }
                     .padding()
                     
+                    // Deletion responsibility banner
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.orange)
+                            Text("toolDetailView.warning.banner")
+                                .font(.caption)
+                                .foregroundStyle(.orange)
+                            Spacer()
+                        }
+                    }
+                    .padding()
+                    .background(Color.orange.opacity(0.1))
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
+                    .padding(.horizontal)
+                    
                     // Apple Intelligence analysis
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Apple Intelligence Analysis", systemImage: "sparkles")
@@ -270,6 +286,8 @@ struct ArtifactCard: View {
     let onDelete: () -> Void
     let onSelect: () -> Void
     
+    @State private var isHovered: Bool = false
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             // Header
@@ -350,9 +368,19 @@ struct ArtifactCard: View {
                 }
             }
         }
+        .contentShape(Rectangle())
+        .onTapGesture { onSelect() }
+        .onHover { hovering in
+            isHovered = hovering
+        }
         .padding()
-        .background(Color(NSColor.controlBackgroundColor))
+        .background(isHovered ? Color(NSColor.controlBackgroundColor).opacity(0.95) : Color(NSColor.controlBackgroundColor))
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isHovered ? Color.accentColor.opacity(0.6) : .clear, lineWidth: 1)
+        )
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .animation(.easeInOut(duration: 0.12), value: isHovered)
     }
     
     private func riskColor(for level: ArtifactRiskLevel) -> Color {

@@ -58,6 +58,7 @@ public enum AppKeys {
     // Example keys to show usage; replace or extend as needed.
     public static let hasOnboarded = AppKey<Bool>("hasOnboarded", default: false)
     public static let preferredUnit = AppKey<String>("preferredUnit", default: "MB")
+    public static let suppressGlobalDeletionWarning = AppKey<Bool>("suppressGlobalDeletionWarning", default: false)
 }
 
 public enum SecureKeys {
