@@ -245,3 +245,4 @@ struct DetailSection<Content: View>: View {
 #Preview {
     ArtifactContentView(isDeveloperModeEnabled: .constant(true))
 }
+

@@ -7,9 +7,14 @@
 
 import SwiftUI
 
+#if canImport(AppKit)
+import AppKit
+#endif
+
 struct ArtifactSidebarView: View {
     @Bindable var viewModel: ArtifactScanViewModel
     @Binding var isDeveloperModeEnabled: Bool
+    @State private var isFullDiskAccessGranted: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -19,12 +24,47 @@ struct ArtifactSidebarView: View {
             // Header
             Text("Developer Tools")
                 .font(.headline)
-            Button {
-                viewModel.requestDiskAccess()
-            } label: {
-                Label("Grant Disk Access", systemImage: "magnifyingglass")
+            
+            // Full Disk Access status
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 8) {
+                    if isFullDiskAccessGranted {
+                        Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
+                        Text("Full Disk Access: Granted")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                        Text("Full Disk Access: Not Granted")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                }
+
+                if !isFullDiskAccessGranted {
+                    HStack(spacing: 8) {
+                        Button {
+                            FullDiskAccess.openSystemSettings()
+                        } label: {
+                            Label("Open Settings", systemImage: "gear")
+                        }
+                        .buttonStyle(.borderedProminent)
+
+                        Button {
+                            // Re-check current permission state
+                            isFullDiskAccessGranted = FullDiskAccess.isGranted
+                        } label: {
+                            Label("Refresh", systemImage: "arrow.clockwise")
+                        }
+                        .buttonStyle(.bordered)
+                    }
+
+                    Text("After granting, you may need to restart the app for changes to take effect.")
+                        .font(.caption2)
+                        .foregroundStyle(.tertiary)
+                }
             }
-            .buttonStyle(.borderedProminent)
             
             // Scan button
             Button {
@@ -85,6 +125,16 @@ struct ArtifactSidebarView: View {
                 Text(result.message)
             }
         }
+        .task {
+            // Initialize current status
+            isFullDiskAccessGranted = FullDiskAccess.isGranted
+        }
+        #if canImport(AppKit)
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            // Re-check when app becomes active again (e.g., after returning from Settings)
+            isFullDiskAccessGranted = FullDiskAccess.isGranted
+        }
+        #endif
     }
     
     @ViewBuilder

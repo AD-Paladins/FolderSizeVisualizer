@@ -30,6 +30,9 @@
     "• %lld safe" : {
 
     },
+    "After granting, you may need to restart the app for changes to take effect." : {
+
+    },
     "All results" : {
 
     },
@@ -119,7 +122,10 @@
         }
       }
     },
-    "Grant Disk Access" : {
+    "Full Disk Access: Granted" : {
+
+    },
+    "Full Disk Access: Not Granted" : {
 
     },
     "Information" : {
@@ -155,6 +161,9 @@
     "Open in Finder" : {
 
     },
+    "Open Settings" : {
+
+    },
     "Percentage of scan" : {
 
     },
@@ -162,6 +171,9 @@
 
     },
     "Reason: %@" : {
+
+    },
+    "Refresh" : {
 
     },
     "Requires manual review" : {
