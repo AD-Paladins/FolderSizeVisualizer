@@ -20,7 +20,9 @@ struct ArtifactContentView: View {
                 ToolDetailView(viewModel: viewModel, tool: selectedTool)
                     .navigationSplitViewColumnWidth(min: 450, ideal: 480, max: 620)
             } else {
+                // View visible only if there are no tools to be shown
                 DashboardView(viewModel: viewModel)
+                    .navigationSplitViewColumnWidth(min: 450, ideal: 480, max: 620)
             }
         } detail: {
             if let artifact = viewModel.selectedArtifact {

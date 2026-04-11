@@ -155,9 +155,6 @@
     "Requires manual review" : {
 
     },
-    "Reveal in Finder" : {
-
-    },
     "Safe to delete" : {
 
     },
@@ -171,9 +168,6 @@
 
     },
     "Scan the system to see artifacts for %@" : {
-
-    },
-    "Scan This Folder" : {
 
     },
     "Scan your system to analyze developer tool disk usage" : {
@@ -201,9 +195,6 @@
 
     },
     "Start Over" : {
-
-    },
-    "Statistics" : {
 
     },
     "Top %lld" : {

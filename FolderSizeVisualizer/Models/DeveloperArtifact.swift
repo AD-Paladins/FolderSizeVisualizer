@@ -72,7 +72,7 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
         case .xcode: return "hammer.fill"
         case .iosSimulator: return "iphone"
         case .androidStudio: return "smartphone"
-        case .androidSDK: return "sdk"
+        case .androidSDK: return "compass.drawing"
         case .docker: return "shippingbox.fill"
         case .nodeJS: return "square.stack.3d.up.fill"
         case .homebrew: return "mug.fill"

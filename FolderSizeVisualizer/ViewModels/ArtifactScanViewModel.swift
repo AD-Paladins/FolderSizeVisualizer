@@ -118,6 +118,7 @@ final class ArtifactScanViewModel {
                 self.totalSize = result.totalSize
                 self.totalSafeToDelete = result.totalSafeToDelete
                 self.scanDate = result.scanDate
+                self.selectedTool = result.toolSummaries.first?.tool
             } catch {
                 print("❌ Scan error: \(error)")
                 self.toolSummaries = []
@@ -154,6 +155,7 @@ final class ArtifactScanViewModel {
                     // Recalculate totals
                     self.totalSize = self.toolSummaries.reduce(0) { $0 + $1.totalSize }
                     self.totalSafeToDelete = self.toolSummaries.reduce(0) { $0 + $1.safeToDeleteSize }
+                    self.selectedTool = self.toolSummaries.first?.tool
                 }
             } catch {
                 print("Rescan error for \(tool.displayName): \(error)")
