@@ -30,10 +30,16 @@
     "• %lld safe" : {
 
     },
-    "All artifacts for %@ require manual review" : {
+    "All results" : {
 
     },
-    "All results" : {
+    "Analyze with Apple Intelligence" : {
+
+    },
+    "Analyzing…" : {
+
+    },
+    "Apple Intelligence Analysis" : {
 
     },
     "Are you sure you want to delete this artifact?" : {
@@ -128,13 +134,13 @@
     "Manual Review Required" : {
 
     },
+    "Model available on this device" : {
+
+    },
     "No artifacts found" : {
 
     },
     "No Data Available" : {
-
-    },
-    "No Safe Deletions Available" : {
 
     },
     "No Scan Results" : {
@@ -150,6 +156,9 @@
 
     },
     "Quick Actions" : {
+
+    },
+    "Reason: %@" : {
 
     },
     "Requires manual review" : {
@@ -195,6 +204,15 @@
 
     },
     "Start Over" : {
+
+    },
+    "Suggested: Delete" : {
+
+    },
+    "Suggested: Keep" : {
+
+    },
+    "Suggested: Review" : {
 
     },
     "Top %lld" : {

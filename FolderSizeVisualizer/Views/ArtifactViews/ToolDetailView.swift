@@ -15,6 +15,20 @@ struct ToolDetailView: View {
     @State private var artifactToDelete: DeveloperArtifact?
     @State private var showBatchDeleteConfirmation = false
     
+    @State private var intelligenceAvailability: ToolIntelligenceService.Availability = .unavailable("Checking…")
+    @State private var isAnalyzingWithAI = false
+    @State private var analysisResult: ToolIntelligenceResult?
+    @State private var analysisError: String?
+    
+    private func riskColor(for level: ArtifactRiskLevel) -> Color {
+        switch level {
+        case .safe: return .green
+        case .slowRebuild: return .orange
+        case .unsafe: return .red
+        case .unknown: return .gray
+        }
+    }
+    
     var summary: ToolArtifactSummary? {
         viewModel.toolSummaries.first { $0.tool == tool }
     }
@@ -52,42 +66,123 @@ struct ToolDetailView: View {
                             
                             Spacer()
                         }
-                        
-                        // Quick actions
-                        HStack(spacing: 12) {
-                            if summary.safeToDeleteCount > 0 {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("Safe to Delete")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                    Text(summary.formattedSafeToDeleteSize)
-                                        .font(.title2)
-                                        .bold()
-                                        .foregroundStyle(.green)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding()
-                                .background(Color.green.opacity(0.1))
-                                .clipShape(RoundedRectangle(cornerRadius: 8))
-                                
-                                Button {
-                                    showBatchDeleteConfirmation = true
-                                } label: {
-                                    Label("Clean Safe Artifacts", systemImage: "trash")
-                                        .frame(maxWidth: .infinity)
-                                }
-                                .buttonStyle(.borderedProminent)
-                                .tint(.green)
-                            } else {
-                                ContentUnavailableView(
-                                    "No Safe Deletions Available",
-                                    systemImage: "checkmark.shield",
-                                    description: Text("All artifacts for \(tool.displayName) require manual review")
-                                )
-                            }
-                        }
                     }
                     .padding()
+                    
+                    // Apple Intelligence analysis
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Apple Intelligence Analysis", systemImage: "sparkles")
+                            .font(.headline)
+
+                        // Availability status
+                        HStack(spacing: 8) {
+                            switch intelligenceAvailability {
+                            case .available:
+                                Image(systemName: "checkmark.seal.fill").foregroundStyle(.green)
+                                Text("Model available on this device")
+                                    .foregroundStyle(.secondary)
+                            case .unavailable(let reason):
+                                Image(systemName: "exclamationmark.triangle.fill").foregroundStyle(.orange)
+                                Text(reason)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                        }
+                        .font(.caption)
+
+                        // Controls / progress
+                        if isAnalyzingWithAI {
+                            HStack {
+                                ProgressView()
+                                Text("Analyzing…")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                            }
+                        } else {
+                            Button {
+                                guard case .available = intelligenceAvailability else { return }
+                                analysisError = nil
+                                analysisResult = nil
+                                isAnalyzingWithAI = true
+                                Task { @MainActor in
+                                    do {
+                                        let result = try await ToolIntelligenceService.shared.analyze(tool: tool, summary: summary)
+                                        self.analysisResult = result
+                                    } catch {
+                                        self.analysisError = error.localizedDescription
+                                    }
+                                    self.isAnalyzingWithAI = false
+                                }
+                            } label: {
+                                Label("Analyze with Apple Intelligence", systemImage: "sparkles")
+                                    .frame(maxWidth: .infinity)
+                            }
+                            .buttonStyle(.borderedProminent)
+                            .disabled({
+                                if case .available = intelligenceAvailability { return false }
+                                return true
+                            }())
+                        }
+
+                        // Result / error
+                        if let result = analysisResult {
+                            VStack(alignment: .leading, spacing: 8) {
+                                // Risk badge and suggested action
+                                HStack(spacing: 8) {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: result.riskLevel.systemImage).font(.caption)
+                                        Text(result.riskLevel.displayName).font(.caption).bold()
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(riskColor(for: result.riskLevel).opacity(0.2))
+                                    .foregroundStyle(riskColor(for: result.riskLevel))
+                                    .clipShape(Capsule())
+
+                                    HStack(spacing: 4) {
+                                        Image(systemName: {
+                                            switch result.suggestedAction {
+                                            case .delete: return "trash"
+                                            case .keep: return "checkmark"
+                                            case .review: return "eye"
+                                            }
+                                        }()).font(.caption)
+                                        Text({
+                                            switch result.suggestedAction {
+                                            case .delete: return "Suggested: Delete"
+                                            case .keep: return "Suggested: Keep"
+                                            case .review: return "Suggested: Review"
+                                            }
+                                        }()).font(.caption).bold()
+                                    }
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.blue.opacity(0.15))
+                                    .foregroundStyle(.blue)
+                                    .clipShape(Capsule())
+
+                                    Spacer()
+                                }
+
+                                MarkdownText(markdownString: result.enhancedDescription, lineLimit: 5)
+                                    .foregroundStyle(.secondary)
+
+                                if !result.reason.isEmpty {
+                                    Text("Reason: \(result.reason)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            .padding()
+                            .background(Color(NSColor.controlBackgroundColor))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                        } else if let err = analysisError {
+                            Text(err)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal)
                     
                     Divider()
                     
@@ -146,6 +241,9 @@ struct ToolDetailView: View {
             if let summary = summary {
                 Text("Delete \(summary.safeToDeleteCount) safe artifact(s) and reclaim \(summary.formattedSafeToDeleteSize)?")
             }
+        }
+        .task(id: tool) {
+            intelligenceAvailability = await ToolIntelligenceService.shared.availability()
         }
     }
 }
@@ -261,3 +359,4 @@ struct ArtifactCard: View {
         ToolDetailView(viewModel: ArtifactScanViewModel(), tool: .xcode)
     }
 }
+
