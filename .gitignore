@@ -9,3 +9,5 @@ DerivedData/
 .aider*
 
 .venv_arm64/
+
+memory-agent.db
