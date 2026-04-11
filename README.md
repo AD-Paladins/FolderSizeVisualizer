@@ -10,6 +10,10 @@
 
 </div>
 
+<div align="center">
+<strong>Built with ❤️ for developers who care about their disk space</strong>
+</div>
+
 ---
 
 ## 🎯 Overview
@@ -465,7 +469,3 @@ This tool succeeds when users can immediately answer:
 | "What happens if I delete this?" | Rebuild cost + risk per artifact |
 
 ---
-
-<div align="center">
-<strong>Built with ❤️ for developers who care about their disk space</strong>
-</div>
