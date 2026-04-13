@@ -5,6 +5,18 @@ import FoundationModels
 #endif
 
 // MARK: - Result Model
+struct RawAIResponse: Codable {
+    let enhancedDescription: String
+    let risk: String
+    let reason: String
+    let suggestedAction: String
+    let documentationLinks: [DocLink]?
+}
+struct DocLink: Codable, Identifiable {
+    let title: String
+    let url: String
+    var id: String { url }
+}
 
 struct ToolIntelligenceResult: Identifiable, Sendable, Codable {
     enum SuggestedAction: String, Codable, Sendable { case delete, keep, review }
@@ -15,14 +27,16 @@ struct ToolIntelligenceResult: Identifiable, Sendable, Codable {
     let riskLevel: ArtifactRiskLevel
     let reason: String
     let suggestedAction: SuggestedAction
-
+    let documentationLinks: [DocLink]
+    
     init(
         id: UUID = UUID(),
         tool: DeveloperTool,
         enhancedDescription: String,
         riskLevel: ArtifactRiskLevel,
         reason: String,
-        suggestedAction: SuggestedAction
+        suggestedAction: SuggestedAction,
+        documentationLinks: [DocLink]
     ) {
         self.id = id
         self.tool = tool
@@ -30,18 +44,18 @@ struct ToolIntelligenceResult: Identifiable, Sendable, Codable {
         self.riskLevel = riskLevel
         self.reason = reason
         self.suggestedAction = suggestedAction
+        self.documentationLinks = documentationLinks
     }
 }
 
-// MARK: - Service
 
-actor ToolIntelligenceService {
+
+// MARK: - Service
+actor ToolIntelligenceService: ToolIntelligenceProvider {
     enum Availability: Sendable, Equatable {
         case available
         case unavailable(String)
     }
-
-    static let shared = ToolIntelligenceService()
 
     // Check if Apple Intelligence is available on this device/session
     func availability() async -> Availability {
@@ -85,7 +99,10 @@ actor ToolIntelligenceService {
           "enhancedDescription": String,       // 2-4 sentences, markdown allowed
           "risk": "safe"|"slowRebuild"|"unsafe"|"unknown",
           "reason": String,                   // short justification
-          "suggestedAction": "delete"|"keep"|"review"
+          "suggestedAction": "delete"|"keep"|"review",
+          "documentationLinks": [
+            { "title": String, "url": String }
+          ]
         }
         No extra commentary, code fences, or explanations.
         """
@@ -115,14 +132,25 @@ actor ToolIntelligenceService {
         } else {
             jsonString = raw
         }
-
-        struct RawAIResponse: Decodable {
+        struct RawAIResponse: Codable {
             let enhancedDescription: String
             let risk: String
             let reason: String
             let suggestedAction: String
+            let documentationLinks: [DocLink]?
+            
+            var docLinks: [FolderSizeVisualizer.DocLink] {
+                guard let docs = documentationLinks else { return [] }
+                return docs.compactMap { docLink in
+                    FolderSizeVisualizer.DocLink(title: docLink.title, url: docLink.url)
+                }
+            }
         }
-
+        struct DocLink: Codable {
+            let title: String
+            let url: String
+        }
+        
         let data = Data(jsonString.utf8)
         let decoded: RawAIResponse
         do {
@@ -134,7 +162,8 @@ actor ToolIntelligenceService {
                 enhancedDescription: raw.trimmingCharacters(in: .whitespacesAndNewlines),
                 riskLevel: .unknown,
                 reason: "Could not parse structured response",
-                suggestedAction: .review
+                suggestedAction: .review,
+                documentationLinks: []
             )
         }
 
@@ -158,10 +187,17 @@ actor ToolIntelligenceService {
             enhancedDescription: decoded.enhancedDescription,
             riskLevel: riskLevel,
             reason: decoded.reason,
-            suggestedAction: action
+            suggestedAction: action,
+            documentationLinks: decoded.docLinks
         )
         #else
         throw NSError(domain: "ToolIntelligenceService", code: 2, userInfo: [NSLocalizedDescriptionKey: "FoundationModels not available in this build"])        
         #endif
     }
+}
+
+// MARK: - Protocol
+protocol ToolIntelligenceProvider {
+    func availability() async -> ToolIntelligenceService.Availability
+    func analyze(tool: DeveloperTool, summary: ToolArtifactSummary) async throws -> ToolIntelligenceResult
 }

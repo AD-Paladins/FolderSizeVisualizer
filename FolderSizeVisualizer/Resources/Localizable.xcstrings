@@ -327,6 +327,9 @@
         }
       }
     },
+    "Experimental feature" : {
+
+    },
     "Found %lld tool(s) using %@" : {
       "localizations" : {
         "en" : {

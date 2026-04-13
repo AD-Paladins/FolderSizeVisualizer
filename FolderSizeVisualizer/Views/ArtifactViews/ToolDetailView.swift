@@ -22,6 +22,11 @@ struct ToolDetailView: View {
     @State private var cachedAIResults: [DeveloperTool: ToolIntelligenceResult] = [:]
     @State private var cachedAIErrors: [DeveloperTool: String] = [:]
     
+    // Add a property to inject the intelligence provider
+    @State private var intelligenceProvider: ToolIntelligenceProvider = ToolIntelligenceService()
+    
+    @State var docLinks: [DocLink] = []
+    
     private func riskColor(for level: ArtifactRiskLevel) -> Color {
         switch level {
         case .safe: return .green
@@ -124,7 +129,7 @@ struct ToolDetailView: View {
                                 isAnalyzingWithAI = true
                                 Task { @MainActor in
                                     do {
-                                        let result = try await ToolIntelligenceService.shared.analyze(tool: tool, summary: summary)
+                                        let result = try await intelligenceProvider.analyze(tool: tool, summary: summary)
                                         self.analysisResult = result
                                         self.cachedAIResults[self.tool] = result
                                         self.cachedAIErrors[self.tool] = ""
@@ -154,56 +159,7 @@ struct ToolDetailView: View {
 
                         // Result / error
                         if let result = analysisResult {
-                            VStack(alignment: .leading, spacing: 8) {
-                                // Risk badge and suggested action
-                                HStack(spacing: 8) {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: result.riskLevel.systemImage).font(.caption)
-                                        Text(result.riskLevel.displayName).font(.caption).bold()
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(riskColor(for: result.riskLevel).opacity(0.2))
-                                    .foregroundStyle(riskColor(for: result.riskLevel))
-                                    .clipShape(Capsule())
-
-                                    HStack(spacing: 4) {
-                                        Image(systemName: {
-                                            switch result.suggestedAction {
-                                            case .delete: return "trash"
-                                            case .keep: return "checkmark"
-                                            case .review: return "eye"
-                                            }
-                                        }()).font(.caption)
-                                        Text({
-                                            switch result.suggestedAction {
-                                            case .delete: return "Suggested: Delete"
-                                            case .keep: return "Suggested: Keep"
-                                            case .review: return "Suggested: Review"
-                                            }
-                                        }()).font(.caption).bold()
-                                    }
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 4)
-                                    .background(Color.blue.opacity(0.15))
-                                    .foregroundStyle(.blue)
-                                    .clipShape(Capsule())
-
-                                    Spacer()
-                                }
-
-                                MarkdownText(markdownString: result.enhancedDescription, lineLimit: 5)
-                                    .foregroundStyle(.secondary)
-
-                                if !result.reason.isEmpty {
-                                    Text("Reason: \(result.reason)")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                            }
-                            .padding()
-                            .background(Color(NSColor.controlBackgroundColor))
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                            AIResultView(result: result)
                         } else if let err = analysisError {
                             Text(err)
                                 .font(.caption)
@@ -271,7 +227,7 @@ struct ToolDetailView: View {
             }
         }
         .task(id: tool) {
-            intelligenceAvailability = await ToolIntelligenceService.shared.availability()
+            intelligenceAvailability = await intelligenceProvider.availability()
             analysisResult = cachedAIResults[tool]
             analysisError = cachedAIErrors[tool]
             isAnalyzingWithAI = false
@@ -396,6 +352,123 @@ struct ArtifactCard: View {
         }
     }
 }
+
+struct DocumentationLinkRow: View {
+    let link: DocLink
+    
+    var body: some View {
+        Button {
+            if let url = URL(string: link.url) {
+                NSWorkspace.shared.open(url)
+            }
+        } label: {
+            HStack {
+                Image(systemName: "safari.fill")
+                    .foregroundColor(.blue)
+                Text(link.title)
+                    .fontWeight(.medium)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.caption2)
+                    .foregroundColor(.secondary)
+            }
+            .padding(8)
+            .background(Color(NSColor.controlBackgroundColor))
+            .cornerRadius(6)
+        }
+        .buttonStyle(.link)
+    }
+}
+
+struct AIResultView: View {
+    let result: ToolIntelligenceResult
+    
+    private func riskColor(for level: ArtifactRiskLevel) -> Color {
+        switch level {
+        case .safe:
+            return .green
+        case .slowRebuild:
+            return .orange
+        case .unsafe:
+            return .red
+        case .unknown:
+            return .gray
+        }
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Risk badge and suggested action
+            HStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Image(systemName: result.riskLevel.systemImage).font(.caption)
+                    Text(result.riskLevel.displayName).font(.caption).bold()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(riskColor(for: result.riskLevel).opacity(0.2))
+                .foregroundStyle(riskColor(for: result.riskLevel))
+                .clipShape(Capsule())
+                
+                HStack(spacing: 4) {
+                    Image(systemName: {
+                        switch result.suggestedAction {
+                        case .delete: return "trash"
+                        case .keep: return "checkmark"
+                        case .review: return "eye"
+                        }
+                    }()).font(.caption)
+                    Text({
+                        switch result.suggestedAction {
+                        case .delete: return "Suggested: Delete"
+                        case .keep: return "Suggested: Keep"
+                        case .review: return "Suggested: Review"
+                        }
+                    }()).font(.caption).bold()
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.blue.opacity(0.15))
+                .foregroundStyle(.blue)
+                .clipShape(Capsule())
+                
+                Spacer()
+            }
+            
+            MarkdownText(markdownString: result.enhancedDescription, lineLimit: 5)
+                .foregroundStyle(.secondary)
+            
+            if !result.reason.isEmpty {
+                Text("Reason: \(result.reason)")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            Text("Experimental feature")
+                .font(.caption)
+                .foregroundStyle(.orange)
+                .bold()
+                .padding(.top, 24)
+                .padding(.bottom, 0)
+            
+            ForEach(result.documentationLinks) { link in
+                DocumentationLinkRow(link: link)
+                    .onHover { inside in
+                        if inside { NSCursor.pointingHand.push() } else { NSCursor.pop() }
+                    }
+            }
+            
+        }
+        .padding()
+        .background(Color(NSColor.controlBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+}
+
+
+
+
+
 
 #Preview {
     NavigationStack {
