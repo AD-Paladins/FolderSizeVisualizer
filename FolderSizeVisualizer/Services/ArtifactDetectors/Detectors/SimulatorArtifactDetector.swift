@@ -60,6 +60,11 @@ actor SimulatorArtifactDetector: ArtifactDetector {
         let unavailableArtifacts = await detectUnavailableDevices(devices: devices)
         artifacts.append(contentsOf: unavailableArtifacts)
         
+        // Detect simulator runtimes from system assets
+        await progress(0.7, "Scanning simulator runtimes...")
+        let runtimeArtifacts = await detectSimulatorRuntimes()
+        artifacts.append(contentsOf: runtimeArtifacts)
+        
         // Detect simulator caches
         await progress(0.8, "Scanning simulator caches...")
         let cacheArtifacts = await detectSimulatorCaches()
@@ -67,7 +72,7 @@ actor SimulatorArtifactDetector: ArtifactDetector {
         
         await progress(1.0, "Completed simulator scan")
         
-        return artifacts
+        return artifacts.sorted { $0.sizeBytes > $1.sizeBytes }
     }
     
     func isToolInstalled() async -> Bool {
@@ -212,6 +217,83 @@ actor SimulatorArtifactDetector: ArtifactDetector {
             artifacts.append(artifact)
         }
         
+        return artifacts
+    }
+    
+    // MARK: - Simulator Runtime Detection
+    private func detectSimulatorRuntimes() async -> [DeveloperArtifact] {
+        let baseURL = URL(fileURLWithPath: "/System/Library/AssetsV2/com_apple_MobileAsset_iOSSimulatorRuntime")
+        var artifacts: [DeveloperArtifact] = []
+
+        // Ensure the base path exists
+        guard await fileHelper.exists(at: baseURL) else {
+            return []
+        }
+
+        let fm = FileManager.default
+
+        // List all subdirectories inside the base path
+        let subitems: [URL]
+        do {
+            subitems = try fm.contentsOfDirectory(at: baseURL, includingPropertiesForKeys: [.isDirectoryKey], options: [.skipsHiddenFiles])
+        } catch {
+            return []
+        }
+
+        for item in subitems {
+            // Only consider directories
+            let resourceValues = try? item.resourceValues(forKeys: [.isDirectoryKey])
+            guard resourceValues?.isDirectory == true else { continue }
+
+            // Find a plist file inside this directory (non-recursive)
+            let plistURL: URL? = {
+                let children = (try? fm.contentsOfDirectory(at: item, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles])) ?? []
+                return children.first(where: { $0.pathExtension.lowercased() == "plist" })
+            }()
+
+            guard let plistURL else { continue }
+
+            // Parse plist to extract name/version when available
+            var runtimeName: String = "iOS Simulator Runtime"
+            var runtimeVersion: String = "Unknown"
+            var buildVersion: String = "Unknown"
+            var architectures: String = "Unknown"
+            if let data = try? Data(contentsOf: plistURL),
+               let plist = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] {
+                if let name = (plist["Name"] as? String) ?? (plist["name"] as? String) {
+                    runtimeName = name
+                }
+                if let mobileAssetProperties = plist["MobileAssetProperties"] as? [String:Any] {
+                    let version = mobileAssetProperties["SimulatorVersion"] as? String ?? ""
+                    let build = mobileAssetProperties["Build"] as? String
+                    let archs = mobileAssetProperties["Architectures"] as? [String]
+                    runtimeVersion = version
+                    buildVersion = build ?? "Unknown"
+                    architectures = archs?.joined(separator: ", ") ?? "Unknown"
+                }
+            }
+
+            // Compute size and last access date for this runtime directory
+            let size = await fileHelper.directorySize(at: item)
+            let lastUsed = await fileHelper.lastAccessDate(at: item)
+
+            let explanation = "\(runtimeName).\n**OS version:** \(runtimeVersion) (build \(buildVersion))\n **Architecture(s):** \(architectures)\nSystem-provided simulator runtime assets. Not recommended to delete."
+
+            let artifact = await DeveloperArtifact(
+                toolName: .iosSimulator,
+                artifactType: "Simulator Runtime",
+                sizeBytes: size,
+                safeToDelete: false,
+                riskLevel: .unsafe,
+                rebuildCostEstimate: "System component — managed by the OS/Xcode\nNeeds to be downloaded again (9GB+).",
+                lastUsedDate: lastUsed,
+                explanationText: explanation,
+                underlyingPaths: [item]
+            )
+
+            artifacts.append(artifact)
+        }
+
         return artifacts
     }
     
