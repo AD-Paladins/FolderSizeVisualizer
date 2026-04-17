@@ -237,10 +237,11 @@
         }
 
         /* Mockup */
-        .hero-image {
-            display: flex;
-            justify-content: center;
-            align-items: center;
+        .hero-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
         }
 
         .hero-mockup {
@@ -475,6 +476,10 @@
 
         /* Responsive */
         @media (max-width: 968px) {
+            .nav-links {
+                display: none;
+            }
+
             .hero-content {
                 grid-template-columns: 1fr;
                 text-align: center;
@@ -486,10 +491,15 @@
 
             .hero-stats {
                 justify-content: center;
+                gap: 1rem;
             }
 
             .comparison-container {
                 grid-template-columns: 1fr;
+            }
+
+            .hero-image {
+                margin-bottom: 2rem;
             }
         }
 
@@ -504,6 +514,14 @@
 
             .features-grid {
                 grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-stats {
+                justify-content: center;
+                flex-direction: column;
+                gap: 1rem;
             }
         }
     </style>
@@ -560,7 +578,8 @@
                             </svg>
                             View on GitHub
                         </a>
-                        <a href="https://buymeacoffee.com/andrespalah" target="_blank" style="height: 64px; width: 218px;; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px;"
+                        <a href="https://buymeacoffee.com/andrespalah" target="_blank"
+                            style="height: 64px; width: 218px;; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px;"
                             class="btn btn-secondary btn-large">
                             <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee"
                                 style="height: 60px; width: 214px; border-radius: 6px;" />
@@ -582,39 +601,7 @@
                     </div>
                 </div>
                 <div class="hero-image">
-                    <div class="hero-mockup">
-                        <div class="mockup-header">
-                            <div class="mockup-dot"></div>
-                            <div class="mockup-dot"></div>
-                            <div class="mockup-dot"></div>
-                        </div>
-                        <div class="mockup-content">
-                            <div class="screenshot-placeholder">
-                                <svg viewBox="0 0 400 300" fill="none">
-                                    <rect width="400" height="300" rx="8" fill="#1a1a2e" />
-                                    <text x="50" y="60" fill="#5AC8FA" font-size="24" font-family="sans-serif"
-                                        font-weight="600">Developer Disk Usage</text>
-                                    <text x="50" y="90" fill="#888" font-size="14" font-family="sans-serif">Found 8
-                                        tool(s) using 45.2 GB</text>
-                                    <rect x="50" y="120" width="100" height="80" rx="8" fill="#2a2a4e" />
-                                    <rect x="170" y="120" width="100" height="80" rx="8" fill="#2a2a4e" />
-                                    <rect x="290" y="120" width="100" height="80" rx="8" fill="#2a2a4e" />
-                                    <text x="100" y="150" fill="#5AC8FA" font-size="16" font-family="sans-serif"
-                                        text-anchor="middle">🛠️ Xcode</text>
-                                    <text x="100" y="170" fill="#fff" font-size="14" font-family="sans-serif"
-                                        text-anchor="middle">12.3 GB</text>
-                                    <text x="220" y="150" fill="#5AC8FA" font-size="16" font-family="sans-serif"
-                                        text-anchor="middle">📱 iOS</text>
-                                    <text x="220" y="170" fill="#fff" font-size="14" font-family="sans-serif"
-                                        text-anchor="middle">8.5 GB</text>
-                                    <text x="340" y="150" fill="#5AC8FA" font-size="16" font-family="sans-serif"
-                                        text-anchor="middle">🐳 Docker</text>
-                                    <text x="340" y="170" fill="#fff" font-size="14" font-family="sans-serif"
-                                        text-anchor="middle">4.2 GB</text>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                    <img alt="image" src="./resources/DevDashboardCompact.png" />
                 </div>
             </div>
         </div>
