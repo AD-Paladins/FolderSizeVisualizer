@@ -67,46 +67,18 @@ Unlike generic disk analyzers that show filesystem paths, this tool speaks the l
 ## 📸 Screenshots
 
 ### Dashboard View
+#### Normal mode
+<img width="1271" height="791" alt="Developer Mode" src="https://github.com/user-attachments/assets/e2af8226-2fb5-4d14-94d6-813ee3d77c5e" />
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Developer Disk Usage                                        │
-│  Found 8 tool(s) using 45.2 GB                               │
-├─────────────────────────────────────────────────────────────┤
-│  ┌────────────┐ ┌────────────┐ ┌────────────┐              │
-│  │ 🛠️  Xcode  │ │ 📱 iOS     │ │ 🐳 Docker  │              │
-│  │  Simulators│ │            │ │            │              │
-│  ├────────────┤ ├────────────┤ ├────────────┤              │
-│  │ 12.3 GB    │ │ 8.5 GB     │ │ 4.2 GB     │              │
-│  │ 234        │ │ 89         │ │ 156        │              │
-│  │            │ │            │ │            │              │
-│  │ ✓ Clean 8.2│ │ View       │ │ View       │              │
-│  └────────────┘ └────────────┘ └────────────┘              │
-└─────────────────────────────────────────────────────────────┘
-```
+#### Developer mode
+<img width="1271" height="953" alt="image" src="https://github.com/user-attachments/assets/9027eb4d-4f45-4464-a7c1-f3e8c1ac7838" />
 
 ### Artifact Detail View
+#### Normal mode
+<img width="444" height="846" alt="image" src="https://github.com/user-attachments/assets/0ea5d600-adf0-4fb3-a94d-f2957b6020a9" />
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  🛠️  Xcode DerivedData                                       │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ What is this?                                         │   │
-│  │ Xcode build artifacts including compiled modules and │   │
-│  │ derived data for project builds. Safe to delete if   │   │
-│  │ you don't need incremental builds.                   │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌──────────────────────────────────────────────────────┐   │
-│  │ Size           │ 12.3 GB                             │   │
-│  │ Rebuild Cost   │ 2-10 minutes per project            │   │
-│  │ Last Used      │ 2 hours ago                         │   │
-│  │ Safety         │ ✓ Safe                              │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                             │
-│  [Show in Finder]    [Delete]                               │
-└─────────────────────────────────────────────────────────────┘
-```
+#### Developer mode
+<img width="444" height="846" alt="image" src="https://github.com/user-attachments/assets/1cd128fd-8230-4cd3-a19f-5509c9852493" />
 
 ---
 
@@ -161,12 +133,12 @@ xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisual
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  Folder Size Visualizer                                  │
+│  Folder Size Visualizer                                 │
 ├──────────────┬──────────────────┬───────────────────────┤
 │  Sidebar     │  Content Area    │  Detail Pane          │
 │  ────────────┼──────────────────┼───────────────────────│
 │  Scan System │  Dashboard       │  Artifact Detail      │
-│              │  ────────────────  │  ───────────────────  │
+│              │ ──────────────── │  ───────────────────  │
 │  Xcode       │  • Tool Cards    │  • What is this?      │
 │  iOS         │  • Quick Actions │  • Size info          │
 │  Android     │                  │  • Safety status      │
