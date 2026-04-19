@@ -154,7 +154,29 @@ p {
     font-size: 1.125rem;
 }
 
-.icon {
+.btn-bmc {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: transparent;
+    border: 2px solid rgba(90, 200, 250, 0.5);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.btn-bmc:hover {
+    border-color: var(--primary);
+    background: rgba(90, 200, 250, 0.1);
+}
+
+.btn-bmc img {
+    height: 60px;
+    width: auto;
+    border-radius: 6px;
+}
+
+.icon {", 
     width: 20px;
     height: 20px;
 }
@@ -433,14 +455,9 @@ footer {
     gap: 3rem;
 }
 
-.footer-content-2 {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 3rem;
-    padding-top: 3rem;
-    text-align: center;
+.heart-icon {
+    color: var(--accent);
+    font-size: 0.9em;
 }
 
 .footer-section h4 {
@@ -468,8 +485,8 @@ footer {
 }
 
 .footer-section a::after {
-    content: '\f35d';
-    /* Unicode para fa-external-link-alt */
+    content: '\f08e';
+    /* Unicode for fa-arrow-up-right-from-square (external link icon) */
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
     font-size: 0.7em;
