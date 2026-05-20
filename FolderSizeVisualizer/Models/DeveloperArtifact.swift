@@ -49,6 +49,7 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
     case python
     case rust
     case git
+    case localLLMs
     
     var id: String { rawValue }
     
@@ -64,6 +65,7 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
         case .python: return "Python"
         case .rust: return "Rust"
         case .git: return "Git"
+        case .localLLMs: return "Local LLMs"
         }
     }
     
@@ -79,6 +81,7 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
         case .python: return "terminal.fill"
         case .rust: return "gearshape.2.fill"
         case .git: return "arrow.triangle.branch"
+        case .localLLMs: return "brain.head.profile.fill"
         }
     }
 }

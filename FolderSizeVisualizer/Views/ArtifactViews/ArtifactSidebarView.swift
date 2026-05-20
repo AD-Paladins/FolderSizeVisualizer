@@ -74,7 +74,17 @@ struct ArtifactSidebarView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(viewModel.isScanning)
-            
+
+            Button {
+                Task {
+                    _ = await FileSystemHelper().requestAccessAndStoreBookmark(for: .llmCustomDirectories)
+                    viewModel.startScan()
+                }
+            } label: {
+                Label("Add LLM Directory", systemImage: "folder.badge.plus")
+            }
+            .buttonStyle(.bordered)
+
             if viewModel.isScanning {
                 scanningView()
             }
