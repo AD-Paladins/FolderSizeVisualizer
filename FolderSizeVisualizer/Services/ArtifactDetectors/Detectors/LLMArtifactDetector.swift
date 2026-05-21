@@ -51,7 +51,7 @@ actor LLMArtifactDetector: ArtifactDetector {
     // MARK: - Ollama Detection
 
     private func detectOllama() async -> [DeveloperArtifact] {
-        let modelsPath = DeveloperPaths.ollamaModels
+        let modelsPath = await DeveloperPaths.ollamaModels
 
         guard await fileHelper.exists(at: modelsPath) else {
             return []
@@ -86,7 +86,7 @@ actor LLMArtifactDetector: ArtifactDetector {
     // MARK: - HuggingFace Detection
 
     private func detectHuggingFace() async -> [DeveloperArtifact] {
-        let cachePath = DeveloperPaths.huggingfaceCache
+        let cachePath = await DeveloperPaths.huggingfaceCache
 
         guard await fileHelper.exists(at: cachePath) else {
             return []
@@ -121,7 +121,7 @@ actor LLMArtifactDetector: ArtifactDetector {
     // MARK: - MLX Detection
 
     private func detectMLX() async -> [DeveloperArtifact] {
-        let cachePath = DeveloperPaths.mlxModels
+        let cachePath = await DeveloperPaths.mlxModels
 
         guard await fileHelper.exists(at: cachePath) else {
             return []
@@ -156,7 +156,7 @@ actor LLMArtifactDetector: ArtifactDetector {
     // MARK: - LM Studio Detection
 
     private func detectLMStudio() async -> [DeveloperArtifact] {
-        let modelsPath = DeveloperPaths.lmStudioModels
+        let modelsPath = await DeveloperPaths.lmStudioModels
 
         guard await fileHelper.exists(at: modelsPath) else {
             return []

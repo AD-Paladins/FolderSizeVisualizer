@@ -36,7 +36,7 @@ struct ArtifactContentView: View {
                 )
             } else {
                 ContentUnavailableView(
-                    "Welcome to Developer Disk Analyzer",
+                    "Welcome to Folder Size Visualizer",
                     systemImage: "hammer.fill",
                     description: Text("Scan your system to analyze developer tool disk usage")
                 )

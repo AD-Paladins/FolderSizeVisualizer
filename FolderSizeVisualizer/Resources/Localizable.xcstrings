@@ -8,6 +8,12 @@
             "state" : "new",
             "value" : "\n%1$@: %2$@"
           }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\n%1$@: %2$@"
+          }
         }
       }
     },
@@ -16,6 +22,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "\n⚠️ %1$@: %2$@"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "\n⚠️ %1$@: %2$@"
           }
         }
@@ -57,6 +69,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aceptar"
+          }
+        }
+      }
+    },
+    "Add LLM Directory" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add LLM Directory"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nuevo Directorio LLM"
           }
         }
       }
@@ -504,58 +532,177 @@
       }
     },
     "Reason: %@" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Razón: %@"
+          }
+        }
+      }
     },
     "Refresh" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refrescar"
+          }
+        }
+      }
     },
     "Requires manual review" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Requiere revisión manual"
+          }
+        }
+      }
     },
     "Review details carefully. Some items may be essential to your workflows." : {
 
     },
     "Safe to delete" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguro de borrar"
+          }
+        }
+      }
     },
     "Safe to Delete" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seguro de borrar"
+          }
+        }
+      }
     },
     "Scan" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear"
+          }
+        }
+      }
     },
     "Scan System" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear sistema"
+          }
+        }
+      }
     },
     "Scan the system to see artifacts for %@" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear sistema para ver artefactos para %@"
+          }
+        }
+      }
     },
     "Scan your system to analyze developer tool disk usage" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escanear sistema y analizar espacio en disco de herramientas de desarrollo"
+          }
+        }
+      }
     },
     "Scanned %@" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneado %@"
+          }
+        }
+      }
     },
     "Scanning..." : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneando…"
+          }
+        }
+      }
     },
     "Scanning…" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escaneando…"
+          }
+        }
+      }
     },
     "Select a Folder" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar carpeta"
+          }
+        }
+      }
     },
     "Select an Artifact" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selecciona un Artefacto"
+          }
+        }
+      }
     },
     "Select Folder" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seleccionar carpeta"
+          }
+        }
+      }
     },
     "Skip hidden files" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltar archivos ocultos"
+          }
+        }
+      }
     },
     "Start Over" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empezar de nuevo"
+          }
+        }
+      }
     },
     "Suggested: Delete" : {
 
@@ -587,19 +734,54 @@
 
     },
     "Total" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Total"
+          }
+        }
+      }
     },
     "Total Size" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamaño Total"
+          }
+        }
+      }
     },
     "View Details" : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ver detalles"
+          }
+        }
+      }
     },
     "Warning: Deleting developer artifacts is at your own risk." : {
-
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advertencia: Borrar artefactos de desarrollo bajo tu propio riesgo"
+          }
+        }
+      }
     },
-    "Welcome to Developer Disk Analyzer" : {
-
+    "Welcome to Folder Size Visualizer" : {
+      "localizations" : {
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Bienvenido a Folder Size Visualizer"
+          }
+        }
+      }
     }
   },
   "version" : "1.1"
