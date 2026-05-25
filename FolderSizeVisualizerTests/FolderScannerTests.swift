@@ -148,17 +148,25 @@ struct FolderScannerTests {
         defer { FolderSizeVisualizerTestsHelper.removeDirectory(root) }
 
         let scanner = FolderScanner()
-        var progressUpdates: [(Double, String)] = []
+        
+        actor ProgressCollector {
+            var updates: [(Double, String)] = []
+            func record(_ progress: Double, _ itemName: String) {
+                updates.append((progress, itemName))
+            }
+        }
+        let collector = ProgressCollector()
 
         let result = try await scanner.scan(root: root) { progress, itemName in
-            progressUpdates.append((progress, itemName))
+            await collector.record(progress, itemName)
         }
 
         // Should have at least some progress updates (initial folders + final completion)
-        #expect(!progressUpdates.isEmpty)
+        let updates = await collector.updates
+        #expect(!updates.isEmpty)
         
         // Last progress should be 1.0 (completion)
-        if let lastProgress = progressUpdates.last?.0 {
+        if let lastProgress = updates.last?.0 {
             #expect(lastProgress >= 0.95) // Near completion
         }
 
