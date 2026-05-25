@@ -23,13 +23,11 @@ struct FolderScannerTests {
         let scanner = FolderScanner()
         let result = try await scanner.scan(root: root) { _, _ in }
 
-        // Validate there are exactly two top-level entries A and B
         #expect(result.folders.count == 2)
 
         let names = Set(result.folders.map { $0.url.lastPathComponent })
         #expect(names == Set(["A", "B"]))
 
-        // Validate sizes match allocated sizes we computed
         for entry in result.folders {
             let expectedSize = expected[entry.url]
             #expect(expectedSize != nil)
