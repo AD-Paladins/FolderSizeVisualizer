@@ -57,30 +57,29 @@ actor LLMArtifactDetector: ArtifactDetector {
             return []
         }
 
-        let dirs = await fileHelper.listDirectories(at: modelsPath)
-        var artifacts: [DeveloperArtifact] = []
+        let totalSize = await fileHelper.directorySize(at: modelsPath)
+        let lastUsed = await fileHelper.lastAccessDate(at: modelsPath)
 
-        for modelDir in dirs {
-            let size = await fileHelper.directorySize(at: modelDir)
-            let lastUsed = await fileHelper.lastAccessDate(at: modelDir)
-            let modelName = modelDir.lastPathComponent
+        let explanation = """
+        Ollama models stored in ~/.ollama/models.
 
-            let artifact = await DeveloperArtifact(
-                toolName: .localLLMs,
-                artifactType: "Ollama Model",
-                sizeBytes: size,
-                safeToDelete: true,
-                riskLevel: .slowRebuild,
-                rebuildCostEstimate: "Re-pull from Ollama registry",
-                lastUsedDate: lastUsed,
-                explanationText: "Ollama model: **\(modelName)**\n\nStored in ~/.ollama/models. Safe to delete - models can be re-pulled with `ollama pull \(modelName)`.",
-                underlyingPaths: [modelDir]
-            )
+        This includes all downloaded model weights, manifests, and blobs. \
+        Safe to delete — models can be re-pulled with `ollama pull <name>`.
+        """
 
-            artifacts.append(artifact)
-        }
+        let artifact = await DeveloperArtifact(
+            toolName: .localLLMs,
+            artifactType: "Ollama Models",
+            sizeBytes: totalSize,
+            safeToDelete: true,
+            riskLevel: .slowRebuild,
+            rebuildCostEstimate: "Re-pull from Ollama registry",
+            lastUsedDate: lastUsed,
+            explanationText: explanation,
+            underlyingPaths: [modelsPath]
+        )
 
-        return artifacts
+        return [artifact]
     }
 
     // MARK: - HuggingFace Detection

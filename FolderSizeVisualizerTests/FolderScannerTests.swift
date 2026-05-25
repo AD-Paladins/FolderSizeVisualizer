@@ -198,7 +198,7 @@ struct FolderScannerTests {
         let result = try await scanner.scan(root: root) { _, _ in }
 
         #expect(result.folders.count == 1)
-        #expect(result.folders[0].url.lastPathComponent == "A")
-        #expect(result.folders[0].size > 0)
+        #expect(result.folders.first?.url.lastPathComponent == "A")
+        #expect(result.folders.first?.size ?? 0 > 0)
     }
 }
