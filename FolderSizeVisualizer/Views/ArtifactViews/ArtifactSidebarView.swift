@@ -85,6 +85,16 @@ struct ArtifactSidebarView: View {
             }
             .buttonStyle(.bordered)
 
+            Button {
+                Task {
+                    _ = await FileSystemHelper().requestAccessAndStoreBookmark(for: .venvProjectRoots)
+                    viewModel.startScan()
+                }
+            } label: {
+                Label("Add Venv Project Root", systemImage: "folder.badge.plus")
+            }
+            .buttonStyle(.bordered)
+
             if viewModel.isScanning {
                 scanningView()
             }
