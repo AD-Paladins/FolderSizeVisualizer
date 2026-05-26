@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "FB1C9846-6A90-4955-9207-1F04E2722BA5",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "performanceAntipatternCheckerEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:FolderSizeVisualizer.xcodeproj",
+        "identifier" : "94893E8F2F198708003D6475",
+        "name" : "FolderSizeVisualizerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

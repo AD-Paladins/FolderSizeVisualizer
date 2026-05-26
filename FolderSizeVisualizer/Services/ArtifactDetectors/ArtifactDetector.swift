@@ -46,6 +46,7 @@ actor FileSystemHelper {
         case cargoRegistry
         case cargoGit
         case gitCache
+        case llmCustomDirectories
     }
     
     // MARK: - Security-scoped bookmarks
@@ -334,5 +335,15 @@ enum DeveloperPaths {
     // Git
     static let gitCache = home
         .appendingPathComponent("Library/Caches/git")
+
+    // LLMs
+    static let ollamaModels = home
+        .appendingPathComponent(".ollama/models")
+    static let huggingfaceCache = home
+        .appendingPathComponent(".cache/huggingface")
+    static let mlxModels = home
+        .appendingPathComponent(".cache/mlx")
+    static let lmStudioModels = home
+        .appendingPathComponent(".lm-studio/models")
 }
 
