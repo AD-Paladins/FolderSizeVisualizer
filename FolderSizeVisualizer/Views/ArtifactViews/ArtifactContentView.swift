@@ -319,7 +319,6 @@ struct ArtifactDetailView: View {
     }
 
     private func generateBackup(for artifact: DeveloperArtifact, venvPath: URL) {
-        let fm = FileManager.default
         let url = backupURL(for: venvPath)
         let date = ISO8601DateFormatter().string(from: Date())
 
