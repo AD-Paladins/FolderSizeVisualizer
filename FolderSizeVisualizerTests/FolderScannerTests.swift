@@ -55,7 +55,7 @@ struct FolderScannerTests {
 
     @Test("FolderScanner caches results and returns same result from cache")
     func scannerCachesAndRetrievesResults() async throws {
-        let (root, expected) = try FolderSizeVisualizerTestsHelper.makeTempDirectoryStructure()
+        let (root, _) = try FolderSizeVisualizerTestsHelper.makeTempDirectoryStructure()
         defer { FolderSizeVisualizerTestsHelper.removeDirectory(root) }
 
         let scanner = FolderScanner()

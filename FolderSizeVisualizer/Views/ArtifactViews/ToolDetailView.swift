@@ -287,6 +287,10 @@ struct ArtifactCard: View {
     let onSelect: () -> Void
     
     @State private var isHovered: Bool = false
+    @State private var backupExists: Bool = false
+    @State private var backupChecked: Bool = false
+    
+    private var isVenv: Bool { artifact.installedPackages != nil }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -350,7 +354,17 @@ struct ArtifactCard: View {
                 }
                 .buttonStyle(.bordered)
                 
-                if artifact.safeToDelete {
+                if artifact.safeToDelete && isVenv && !backupExists {
+                    VStack(spacing: 2) {
+                        Text("Backup required")
+                            .font(.caption2)
+                            .foregroundStyle(.orange)
+                        Text("Open details to generate")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                } else if artifact.safeToDelete {
                     Button {
                         onDelete()
                     } label: {
@@ -381,6 +395,12 @@ struct ArtifactCard: View {
         )
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .animation(.easeInOut(duration: 0.12), value: isHovered)
+        .task {
+            guard isVenv, let venvPath = artifact.underlyingPaths.first else { return }
+            let backupURL = URL(fileURLWithPath: venvPath.path + ".backup.md")
+            backupExists = FileManager.default.fileExists(atPath: backupURL.path)
+            backupChecked = true
+        }
     }
     
     private func riskColor(for level: ArtifactRiskLevel) -> Color {

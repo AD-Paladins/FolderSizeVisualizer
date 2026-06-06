@@ -89,6 +89,9 @@
         }
       }
     },
+    "Add Venv Project Root" : {
+
+    },
     "After granting, you may need to restart the app for changes to take effect." : {
       "localizations" : {
         "es-US" : {
@@ -169,6 +172,12 @@
         }
       }
     },
+    "Backup required" : {
+
+    },
+    "Backup saved" : {
+
+    },
     "Cancel" : {
       "localizations" : {
         "es-US" : {
@@ -178,6 +187,9 @@
           }
         }
       }
+    },
+    "Checking backup..." : {
+
     },
     "Choose a folder from the list to view detailed analysis" : {
       "localizations" : {
@@ -228,6 +240,9 @@
           }
         }
       }
+    },
+    "Copy List" : {
+
     },
     "Copy Path" : {
       "localizations" : {
@@ -391,6 +406,9 @@
         }
       }
     },
+    "Generate .md Backup" : {
+
+    },
     "Information" : {
       "localizations" : {
         "es-US" : {
@@ -461,6 +479,9 @@
         }
       }
     },
+    "No backup — deletion requires one" : {
+
+    },
     "No Data Available" : {
       "localizations" : {
         "es-US" : {
@@ -490,6 +511,9 @@
           }
         }
       }
+    },
+    "Open details to generate" : {
+
     },
     "Open in Finder" : {
       "localizations" : {
