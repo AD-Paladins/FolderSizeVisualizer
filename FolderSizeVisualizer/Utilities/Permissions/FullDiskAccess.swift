@@ -44,6 +44,7 @@ public enum FullDiskAccess {
 
     /// Displays an alert to the user if Full Disk Access is not granted to the current app, with the option to open
     /// the Privacy & Security preference pane or skip.
+    @MainActor
     public static func promptIfNotGranted(
         title: String,
         message: String,
@@ -127,6 +128,7 @@ extension FullDiskAccess {
         return path.replacingOccurrences(of: "~", with: homeURL.path)
     }
 
+    @MainActor
     private static func alertIcon() -> NSImage? {
         guard let appIconImage = NSApp.applicationIconImage else {
             return NSImage(named: "NSInfo")
