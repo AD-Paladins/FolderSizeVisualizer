@@ -6,7 +6,7 @@
 //
 
 import FoundationModels
-
+#if canImport(FoundationModels)
 @available(macOS 26.0, *)
 extension SystemLanguageModel.Availability.UnavailableReason {
     var friendlyString: String {
@@ -22,3 +22,4 @@ extension SystemLanguageModel.Availability.UnavailableReason {
         }
     }
 }
+#endif // canImport(FoundationModels)
