@@ -68,7 +68,7 @@ actor ToolIntelligenceService: ToolIntelligenceProvider {
         case .available:
             return .available
         case .unavailable(let reason):
-            return .unavailable("Model unavailable: \(reason)")
+            return .unavailable("Model unavailable: \(await reason.friendlyString)")
         @unknown default:
             return .unavailable("Model unavailable for unknown reasons")
         }

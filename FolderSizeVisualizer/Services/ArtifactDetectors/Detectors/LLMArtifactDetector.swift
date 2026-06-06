@@ -45,7 +45,13 @@ actor LLMArtifactDetector: ArtifactDetector {
         let hasMLX = await fileHelper.exists(at: DeveloperPaths.mlxModels)
         let hasLMStudio = await fileHelper.exists(at: DeveloperPaths.lmStudioModels)
 
-        return hasOllama || hasHF || hasMLX || hasLMStudio
+        if hasOllama || hasHF || hasMLX || hasLMStudio {
+            return true
+        }
+        if await fileHelper.resolveBookmark(for: .llmCustomDirectories) != nil {
+            return true
+        }
+        return false
     }
 
     // MARK: - Ollama Detection

@@ -78,24 +78,26 @@ struct ArtifactSidebarView: View {
             Button {
                 Task {
                     if await FileSystemHelper().requestAccessAndStoreBookmark(for: .llmCustomDirectories) != nil {
-                        viewModel.startScan()
+                        viewModel.rescanTool(.localLLMs)
                     }
                 }
             } label: {
                 Label("Add LLM Directory", systemImage: "folder.badge.plus")
             }
             .buttonStyle(.bordered)
+            .disabled(viewModel.isScanning)
 
             Button {
                 Task {
                     if await FileSystemHelper().requestAccessAndStoreBookmark(for: .venvProjectRoots) != nil {
-                        viewModel.startScan()
+                        viewModel.rescanTool(.venv)
                     }
                 }
             } label: {
                 Label("Add Venv Project Root", systemImage: "folder.badge.plus")
             }
             .buttonStyle(.bordered)
+            .disabled(viewModel.isScanning)
 
             if viewModel.isScanning {
                 scanningView()
