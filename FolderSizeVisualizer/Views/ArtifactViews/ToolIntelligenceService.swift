@@ -197,7 +197,7 @@ actor ToolIntelligenceService: ToolIntelligenceProvider {
 }
 
 // MARK: - Protocol
-protocol ToolIntelligenceProvider {
+protocol ToolIntelligenceProvider: Sendable {
     func availability() async -> ToolIntelligenceService.Availability
     func analyze(tool: DeveloperTool, summary: ToolArtifactSummary) async throws -> ToolIntelligenceResult
 }
