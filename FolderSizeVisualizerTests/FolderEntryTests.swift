@@ -33,7 +33,7 @@ struct FolderEntryTests {
     @MainActor
     func folderEntryIsIdentifiable() {
         let url1 = URL(fileURLWithPath: "/test/folder1")
-        let url2 = URL(fileURLWithPath: "/test/folder2")
+        _ = URL(fileURLWithPath: "/test/folder2")
         
         let entry1 = FolderEntry(url: url1, size: 1024)
         let entry2 = FolderEntry(url: url1, size: 1024)

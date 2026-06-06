@@ -118,6 +118,7 @@ actor ArtifactScanService {
                 DockerArtifactDetector(),
                 HomebrewArtifactDetector(),
                 PythonArtifactDetector(),
+                VenvArtifactDetector(),
                 RustArtifactDetector(),
                 LLMArtifactDetector()
             ]
