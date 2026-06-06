@@ -102,7 +102,6 @@ actor VenvArtifactDetector: ArtifactDetector {
 
         for candidate in depth1Dirs {
             let name = candidate.lastPathComponent
-            if name == ".DS_Store" || name.hasPrefix(".") { continue }
 
             if venvDirNames.contains(name) {
                 if let info = await analyseVenv(at: candidate) {
@@ -114,6 +113,8 @@ actor VenvArtifactDetector: ArtifactDetector {
                 }
                 continue
             }
+            // Skip hidden directories and system files after venv check
+            if name == ".DS_Store" || name.hasPrefix(".") { continue }
 
             guard await fileHelper.isDirectory(at: candidate) else { continue }
 
