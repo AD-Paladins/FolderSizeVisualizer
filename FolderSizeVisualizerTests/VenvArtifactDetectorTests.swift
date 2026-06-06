@@ -38,9 +38,9 @@ struct VenvArtifactDetectorTests {
         return dir
     }
 
-    private func withBookmark<T>(for url: URL, perform: () async throws -> T) async rethrows -> T {
+    private func withBookmark<T>(for url: URL, perform: () async throws -> T) async throws -> T {
         let original = UserDefaults.standard.data(forKey: bookmarkKey)
-        let data = try! url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+        let data = try url.bookmarkData(options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
         UserDefaults.standard.set(data, forKey: bookmarkKey)
         defer {
             if let original {
@@ -74,6 +74,16 @@ struct VenvArtifactDetectorTests {
 
     @Test("isToolInstalled returns false when no managed dirs or bookmark exist")
     func toolNotInstalledWhenNothingExists() async {
+        let managedDirs = [
+            DeveloperPaths.pipenvVenvs,
+            DeveloperPaths.poetryVenvs,
+            DeveloperPaths.virtualenvwrapperVenvs,
+        ]
+        let fm = FileManager.default
+        for dir in managedDirs where fm.fileExists(atPath: dir.path) {
+            return  // Managed dirs exist on this machine; pre-condition can't be met
+        }
+
         await withoutBookmark {
             let detector = VenvArtifactDetector()
             let installed = await detector.isToolInstalled()
@@ -111,10 +121,11 @@ struct VenvArtifactDetectorTests {
             let artifacts = try await detector.detect { _, _ in }
 
             #expect(artifacts.count == 1)
-            #expect(artifacts[0].toolName == .venv)
-            #expect(artifacts[0].artifactType == "Virtual Environment")
-            #expect(artifacts[0].safeToDelete)
-            #expect(artifacts[0].riskLevel == .slowRebuild)
+            let artifact = try #require(artifacts.first)
+            #expect(artifact.toolName == .venv)
+            #expect(artifact.artifactType == "Virtual Environment")
+            #expect(artifact.safeToDelete)
+            #expect(artifact.riskLevel == .slowRebuild)
         }
     }
 
@@ -254,9 +265,11 @@ struct VenvArtifactDetectorTests {
             let detector = VenvArtifactDetector()
             let artifacts = try await detector.detect { _, _ in }
             #expect(artifacts.count == 1)
-            #expect(artifacts[0].sizeBytes > 0)
-            #expect(artifacts[0].underlyingPaths.count == 1)
-            #expect(artifacts[0].underlyingPaths[0].lastPathComponent == ".venv")
+            let artifact = try #require(artifacts.first)
+            #expect(artifact.sizeBytes > 0)
+            #expect(artifact.underlyingPaths.count == 1)
+            let path = try #require(artifact.underlyingPaths.first)
+            #expect(path.lastPathComponent == ".venv")
         }
     }
 
@@ -274,7 +287,8 @@ struct VenvArtifactDetectorTests {
             let detector = VenvArtifactDetector()
             let artifacts = try await detector.detect { _, _ in }
             #expect(artifacts.count == 1)
-            #expect(artifacts[0].explanationText.contains("my-project"))
+            let artifact = try #require(artifacts.first)
+            #expect(artifact.explanationText.contains("my-project"))
         }
     }
 
@@ -298,7 +312,7 @@ struct VenvArtifactDetectorTests {
 
             let updates = await collector.updates
             #expect(!updates.isEmpty)
-            let last = updates.last!
+            let last = try #require(updates.last)
             #expect(last.0 >= 0.99)
         }
     }
