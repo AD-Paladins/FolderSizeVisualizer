@@ -5,8 +5,9 @@
 //  Created by andres paladines on 6/6/26.
 //
 
-import FoundationModels
 #if canImport(FoundationModels)
+import FoundationModels
+
 @available(macOS 26.0, *)
 extension SystemLanguageModel.Availability.UnavailableReason {
     var friendlyString: String {
