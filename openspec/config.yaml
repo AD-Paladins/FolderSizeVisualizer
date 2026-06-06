@@ -1,0 +1,70 @@
+strict_tdd: true
+# Updated context for SwiftUI/macOS project
+context: |
+  FolderSizeVisualizer es una aplicación macOS escrita en Swift (>=6.0) y SwiftUI (>=5.0).
+  Utiliza Xcode 16+ y depende de las APIs de FileManager y actores para escaneo concurrente.
+  No hay componentes Node.js, Python ni dependencias de paquete externas.
+  La aplicación solicita "Full Disk Access" y permisos de escritura para borrar artefactos.
+
+# Definición de tareas y comandos de prueba adecuados para Swift/Xcode
+tasks:
+  unit:
+    command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerTests -destination 'platform=macOS'"
+    framework: "XCTest"
+  integration:
+    command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerUITests -destination 'platform=macOS'"
+    framework: "XCTest"
+  e2e:
+    command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerUITests -destination 'platform=macOS'"
+    framework: "XCTest"
+
+# Reglas SDD ajustadas a la tecnología Swift
+rules:
+  proposal:
+    require_problem_statement: true
+  spec:
+    require_acceptance_criteria: true
+  design:
+    require_tradeoffs: true
+  tasks:
+    protect_review_workload: true
+  apply:
+    test_command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerTests -destination 'platform=macOS'"
+  verify:
+    test_command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerUITests -destination 'platform=macOS'"
+
+# Testing metadata (actual Swift testing)
+testing:
+  detected: "2026-06-05"
+  runner:
+    command: "xcodebuild"
+    framework: "XCTest"
+  layers:
+    unit: "XCTest"
+    integration: "XCTest"
+    e2e: "XCTest"
+  commands:
+    unit:
+      - scope: "."
+        command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerTests -destination 'platform=macOS'"
+        framework: "XCTest"
+    integration:
+      - scope: "."
+        command: "xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisualizerUITests -destination 'platform=macOS'"
+        framework: "XCTest"
+    e2e: []
+  coverage:
+    command: ""
+    commands: []
+
+# Quality tools (SwiftLint, SwiftFormat)
+quality:
+  lint: "swiftlint"
+  lint_commands:
+    - "swiftlint lint"
+  typecheck: "swiftc"
+  typecheck_commands:
+    - "swiftc -typecheck **/*.swift"
+  format: "swiftformat"
+  format_commands:
+    - "swiftformat ."

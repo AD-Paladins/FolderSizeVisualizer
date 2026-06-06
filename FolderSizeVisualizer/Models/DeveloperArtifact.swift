@@ -49,6 +49,8 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
     case python
     case rust
     case git
+    case localLLMs
+    case venv
     
     var id: String { rawValue }
     
@@ -64,6 +66,8 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
         case .python: return "Python"
         case .rust: return "Rust"
         case .git: return "Git"
+        case .localLLMs: return "Local LLMs"
+        case .venv: return "Python Virtual Environments"
         }
     }
     
@@ -79,6 +83,8 @@ enum DeveloperTool: String, Codable, CaseIterable, Identifiable, Sendable {
         case .python: return "terminal.fill"
         case .rust: return "gearshape.2.fill"
         case .git: return "arrow.triangle.branch"
+        case .localLLMs: return "brain.head.profile.fill"
+        case .venv: return "terminal.fill"
         }
     }
 }
@@ -97,6 +103,7 @@ struct DeveloperArtifact: Identifiable, Hashable, Codable, Sendable {
     let lastUsedDate: Date?
     let explanationText: String
     let underlyingPaths: [URL]
+    let installedPackages: [String]?
     
     init(
         id: UUID = UUID(),
@@ -108,7 +115,8 @@ struct DeveloperArtifact: Identifiable, Hashable, Codable, Sendable {
         rebuildCostEstimate: String,
         lastUsedDate: Date? = nil,
         explanationText: String,
-        underlyingPaths: [URL]
+        underlyingPaths: [URL],
+        installedPackages: [String]? = nil
     ) {
         self.id = id
         self.toolName = toolName
@@ -120,6 +128,7 @@ struct DeveloperArtifact: Identifiable, Hashable, Codable, Sendable {
         self.lastUsedDate = lastUsedDate
         self.explanationText = explanationText
         self.underlyingPaths = underlyingPaths
+        self.installedPackages = installedPackages
     }
     
     var formattedSize: String {

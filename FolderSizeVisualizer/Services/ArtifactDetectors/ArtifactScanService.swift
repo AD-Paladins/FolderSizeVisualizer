@@ -118,9 +118,11 @@ actor ArtifactScanService {
                 DockerArtifactDetector(),
                 HomebrewArtifactDetector(),
                 PythonArtifactDetector(),
-                RustArtifactDetector()
+                VenvArtifactDetector(),
+                RustArtifactDetector(),
+                LLMArtifactDetector()
             ]
-            
+
             await self.detectors = myartifacts
         }
     }

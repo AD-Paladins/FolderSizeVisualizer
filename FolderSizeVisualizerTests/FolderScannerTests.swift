@@ -23,13 +23,11 @@ struct FolderScannerTests {
         let scanner = FolderScanner()
         let result = try await scanner.scan(root: root) { _, _ in }
 
-        // Validate there are exactly two top-level entries A and B
         #expect(result.folders.count == 2)
 
         let names = Set(result.folders.map { $0.url.lastPathComponent })
         #expect(names == Set(["A", "B"]))
 
-        // Validate sizes match allocated sizes we computed
         for entry in result.folders {
             let expectedSize = expected[entry.url]
             #expect(expectedSize != nil)
@@ -57,7 +55,7 @@ struct FolderScannerTests {
 
     @Test("FolderScanner caches results and returns same result from cache")
     func scannerCachesAndRetrievesResults() async throws {
-        let (root, expected) = try FolderSizeVisualizerTestsHelper.makeTempDirectoryStructure()
+        let (root, _) = try FolderSizeVisualizerTestsHelper.makeTempDirectoryStructure()
         defer { FolderSizeVisualizerTestsHelper.removeDirectory(root) }
 
         let scanner = FolderScanner()
@@ -150,17 +148,25 @@ struct FolderScannerTests {
         defer { FolderSizeVisualizerTestsHelper.removeDirectory(root) }
 
         let scanner = FolderScanner()
-        var progressUpdates: [(Double, String)] = []
+        
+        actor ProgressCollector {
+            var updates: [(Double, String)] = []
+            func record(_ progress: Double, _ itemName: String) {
+                updates.append((progress, itemName))
+            }
+        }
+        let collector = ProgressCollector()
 
         let result = try await scanner.scan(root: root) { progress, itemName in
-            progressUpdates.append((progress, itemName))
+            await collector.record(progress, itemName)
         }
 
         // Should have at least some progress updates (initial folders + final completion)
-        #expect(!progressUpdates.isEmpty)
+        let updates = await collector.updates
+        #expect(!updates.isEmpty)
         
         // Last progress should be 1.0 (completion)
-        if let lastProgress = progressUpdates.last?.0 {
+        if let lastProgress = updates.last?.0 {
             #expect(lastProgress >= 0.95) // Near completion
         }
 
@@ -198,7 +204,7 @@ struct FolderScannerTests {
         let result = try await scanner.scan(root: root) { _, _ in }
 
         #expect(result.folders.count == 1)
-        #expect(result.folders[0].url.lastPathComponent == "A")
-        #expect(result.folders[0].size > 0)
+        #expect(result.folders.first?.url.lastPathComponent == "A")
+        #expect(result.folders.first?.size ?? 0 > 0)
     }
 }
