@@ -146,6 +146,25 @@ struct VenvArtifactDetectorTests {
         }
     }
 
+    @Test("detects venv when picked directory IS the venv itself")
+    func detectsVenvWhenPickedDirIsVenv() async throws {
+        let root = makeTempRoot()
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let venvDir = try createValidVenv(at: root, name: "myenv")
+
+        try await withBookmark(for: venvDir) {
+            let detector = VenvArtifactDetector()
+            let artifacts = try await detector.detect { _, _ in }
+            #expect(artifacts.count == 1)
+            let artifact = try #require(artifacts.first)
+            #expect(artifact.toolName == .venv)
+            let path = try #require(artifact.underlyingPaths.first)
+            #expect(path.standardizedFileURL == venvDir.standardizedFileURL)
+        }
+    }
+
     @Test("skips candidate without pyvenv.cfg")
     func skipsDirWithoutPyvenvCfg() async throws {
         let root = makeTempRoot()

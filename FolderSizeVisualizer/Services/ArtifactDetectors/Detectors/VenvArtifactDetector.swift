@@ -98,6 +98,19 @@ actor VenvArtifactDetector: ArtifactDetector {
         }
 
         var artifacts: [DeveloperArtifact] = []
+
+        // Case 1: the picked directory IS a venv itself (user pointed straight at it).
+        if let info = await analyseVenv(at: rootDir) {
+            let size = await fileHelper.directorySize(at: rootDir)
+            let lastUsed = await fileHelper.lastAccessDate(at: rootDir)
+            let label = rootDir.deletingLastPathComponent().lastPathComponent
+            let artifact = await buildArtifact(venvDir: rootDir, info: info, size: size, lastUsed: lastUsed, label: label)
+            artifacts.append(artifact)
+            return artifacts
+        }
+
+        // Case 2: the picked directory contains a venv as a direct child, or is a parent of
+        // projects that each contain a venv one level deeper.
         let depth1Dirs = await fileHelper.listDirectories(at: rootDir)
 
         for candidate in depth1Dirs {
