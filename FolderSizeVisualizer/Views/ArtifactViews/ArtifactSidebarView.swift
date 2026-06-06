@@ -74,7 +74,29 @@ struct ArtifactSidebarView: View {
             }
             .buttonStyle(.borderedProminent)
             .disabled(viewModel.isScanning)
-            
+
+            Button {
+                Task {
+                    if await FileSystemHelper().requestAccessAndStoreBookmark(for: .llmCustomDirectories) != nil {
+                        viewModel.startScan()
+                    }
+                }
+            } label: {
+                Label("Add LLM Directory", systemImage: "folder.badge.plus")
+            }
+            .buttonStyle(.bordered)
+
+            Button {
+                Task {
+                    if await FileSystemHelper().requestAccessAndStoreBookmark(for: .venvProjectRoots) != nil {
+                        viewModel.startScan()
+                    }
+                }
+            } label: {
+                Label("Add Venv Project Root", systemImage: "folder.badge.plus")
+            }
+            .buttonStyle(.bordered)
+
             if viewModel.isScanning {
                 scanningView()
             }

@@ -46,6 +46,8 @@ actor FileSystemHelper {
         case cargoRegistry
         case cargoGit
         case gitCache
+        case llmCustomDirectories
+        case venvProjectRoots
     }
     
     // MARK: - Security-scoped bookmarks
@@ -256,6 +258,13 @@ actor FileSystemHelper {
             return fm.fileExists(atPath: url.path)
         }.value
     }
+
+    /// Read the full contents of a small text file (best effort, for config files).
+    func readTextFile(at url: URL) async -> String? {
+        await Task.detached {
+            try? String(contentsOf: url, encoding: .utf8)
+        }.value
+    }
     
     /// Check if a path is a directory
     func isDirectory(at url: URL) async -> Bool {
@@ -334,5 +343,20 @@ enum DeveloperPaths {
     // Git
     static let gitCache = home
         .appendingPathComponent("Library/Caches/git")
+
+    // LLMs
+    static let ollamaModels = home
+        .appendingPathComponent(".ollama/models")
+    static let huggingfaceCache = home
+        .appendingPathComponent(".cache/huggingface")
+    static let mlxModels = home
+        .appendingPathComponent(".cache/mlx")
+    static let lmStudioModels = home
+        .appendingPathComponent(".lm-studio/models")
+
+    // Python virtual environments
+    static let pipenvVenvs = home.appendingPathComponent(".local/share/virtualenvs")
+    static let poetryVenvs = home.appendingPathComponent(".cache/pypoetry/virtualenvs")
+    static let virtualenvwrapperVenvs = home.appendingPathComponent(".virtualenvs")
 }
 

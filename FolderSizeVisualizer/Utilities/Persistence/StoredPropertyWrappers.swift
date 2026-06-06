@@ -10,7 +10,7 @@ import Foundation
 // MARK: - @Stored (UserDefaults)
 
 @propertyWrapper
-public struct Stored<Value: Codable> {
+public struct Stored<Value: Codable & Sendable> {
     private let key: AppKey<Value>
     private let store: KeyValueStore
 
