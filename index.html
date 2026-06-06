@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Disk Analyzer - Clean Developer Tool Artifacts on macOS</title>
+    <meta name="description"
+        content="Transform generic filesystem analysis into intelligent developer-tool artifact management. Clean Xcode, Simulators, Docker, Node.js and more safely.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <span class="fa-stack fa-3x">
+                    <i class="fa-solid fa-square fa-stack-2x" style="color: #5BC7FA;"></i>
+                    <i class="fa-solid fa-plus fa-stack-1x" style="color: white;"></i>
+                </span>
+                <span>Developer Disk Analyzer</span>
+            </a>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#supported-tools">Supported Tools</a>
+                <a href="#comparison">Why Us</a>
+                <a href="#download">Download</a>
+            </div>
+            <a href="#download" class="btn btn-primary">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="badge">Built with Swift & SwiftUI • macOS 15.6+</div>
+                    <h1>Stop Guessing Why Your Disk Is Full</h1>
+                    <p class="hero-subtitle">
+                        FolderSizeVisualizer transforms generic filesystem analysis into intelligent developer-tool
+                        artifact management.
+                        See what's really taking up space — <strong>Xcode, Simulators, Docker, Node.js</strong> — and
+                        clean it safely.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="https://github.com/AD-Paladins/FolderSizeVisualizer/releases/download/v1.0.0/FolderSizeVisualizer.app.zip"
+                            class="btn btn-primary btn-large">
+                            <i class="fa-solid fa-download"></i>
+                            Download Now
+                        </a>
+                        <a href="https://github.com/AD-Paladins/FolderSizeVisualizer" target="_blank"
+                            class="btn btn-secondary btn-large">
+                            <i class="fa-brands fa-github"></i>
+                            View on GitHub
+                        </a>
+                        <a href="https://buymeacoffee.com/andrespalah" target="_blank"
+                            style="height: 64px; width: 218px;; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px;"
+                            class="btn btn-secondary btn-large">
+                            <img src="https://cdn.buymeacoffee.com/buttons/default-orange.png" alt="Buy Me A Coffee"
+                                style="height: 60px; width: 214px; border-radius: 6px;" />
+                        </a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-value">10+</span>
+                            <span class="stat-label">Developer Tools</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">Smart</span>
+                            <span class="stat-label">Deletion</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-value">Real-time</span>
+                            <span class="stat-label">Analysis</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img alt="image" src="./resources/DevDashboardCompact.png" />
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Powerful Features for Developers</h2>
+                <p>Everything you need to understand and manage your disk space</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-clock fa-3x"></i>
+                    </div>
+                    <h3>Real-Time Progress</h3>
+                    <p>Live scan progress with throttled updates. See exactly what's being analyzed as it happens.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-sitemap fa-3x"></i>
+                    </div>
+                    <h3>Tool-Centric Navigation</h3>
+                    <p>Browse by developer tool, not filesystem paths. See Xcode, Docker, Node.js — not folders.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <span class="fa-stack fa-xl feature-icon">
+                            <i class="fa-solid fa-shield fa-stack-2x"></i>
+                            <i class="fa-solid fa-check fa-stack-1x" style="color: var(--card-bg);"></i>
+                        </span>
+                    </div>
+                    <h3>Risk-Based Safety Badges</h3>
+                    <p>Every artifact displays whether it's safe to delete. Never accidentally break your workflow.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-file-contract fa-3x"></i>
+                    </div>
+                    <h3>Rebuild Cost Estimates</h3>
+                    <p>Understand the impact before any deletion. See how long rebuilds will take.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-rocket fa-3x"></i>
+                    </div>
+                    <h3>Smart Actions</h3>
+                    <p>"Clean Safe Artifacts" for batch cleanup. Delete everything safe in one click.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-code-branch fa-3x"></i>
+                    </div>
+                    <h3>Extensible Architecture</h3>
+                    <p>Easy to extend with new tools. Protocol-oriented design makes adding support simple.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Supported Tools Section -->
+    <section id="supported-tools" class="supported-tools">
+        <div class="container">
+            <div class="section-header">
+                <h2>Supports 10+ Developer Tools</h2>
+                <p>Intelligent detection for all your favorite development environments</p>
+            </div>
+            <div class="tools-list">
+                <div class="tool-item">
+                    <h4><i class="fa-solid fa-toolbox fa-lg"></i> Xcode</h4>
+                    <p>DerivedData, Archives, DeviceSupport, DeviceLogs — clean build artifacts safely</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-solid fa-mobile-screen fa-lg"></i> iOS Simulators</h4>
+                    <p>Devices, Runtimes, Caches — manage simulator storage with confidence</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-solid fa-docker fa-lg"></i> Docker</h4>
+                    <p>Images, containers, volumes — reclaim space from containerized workloads</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-brands fa-android fa-lg"></i> Android SDK</h4>
+                    <p>SDK components, AVDs — keep your Android development environment tidy</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-brands fa-node-js fa-lg"></i> Node.js</h4>
+                    <p>npm cache, Yarn cache — clear package manager bloat effortlessly</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-brands fa-apple fa-lg"></i> Homebrew</h4>
+                    <p>Download cache — optimize your macOS package manager storage</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-brands fa-python fa-lg"></i> Python</h4>
+                    <p>pip cache, Poetry cache — manage Python virtual environment storage</p>
+                </div>
+                <div class="tool-item">
+                    <h4><i class="fa-brands fa-rust fa-lg"></i> Rust</h4>
+                    <p>Cargo registry, Cargo git — keep your Rust toolchain lean</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Section -->
+    <section id="comparison" class="comparison-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Why Choose Developer Disk Analyzer?</h2>
+                <p>See how we stack up against generic disk analyzers</p>
+            </div>
+            <div class="comparison-container">
+                <div class="comparison-card">
+                    <h3>Generic Disk Analyzers</h3>
+                    <ul class="comparison-list">
+                        <li><span class="cross">✗</span> Shows raw filesystem paths</li>
+                        <li><span class="cross">✗</span> No developer context</li>
+                        <li><span class="cross">✗</span> No safety indicators</li>
+                        <li><span class="cross">✗</span> Manual cleanup required</li>
+                        <li><span class="cross">✗</span> No rebuild cost estimates</li>
+                        <li><span class="cross">✗</span> Limited tool support</li>
+                    </ul>
+                </div>
+                <div class="comparison-card highlight">
+                    <h3>Developer Disk Analyzer</h3>
+                    <ul class="comparison-list">
+                        <li><span class="check">✓</span> Tool-centric organization</li>
+                        <li><span class="check">✓</span> Developer-focused labels</li>
+                        <li><span class="check">✓</span> Safety badges on every artifact</li>
+                        <li><span class="check">✓</span> Smart batch cleanup</li>
+                        <li><span class="check">✓</span> Rebuild cost estimates</li>
+                        <li><span class="check">✓</span> 10+ developer tools supported</li>
+                        <li><span class="check">✓</span> Real-time progress tracking</li>
+                        <li><span class="check">✓</span> Built with Swift & SwiftUI</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section id="download" class="cta-section">
+        <div class="container">
+            <h2>Ready to reclaim your disk space?</h2>
+            <p>Download Developer Disk Analyzer today and start cleaning safely.</p>
+            <div class="cta-buttons">
+                <a href="https://github.com/AD-Paladins/FolderSizeVisualizer/releases/download/v1.0.0/FolderSizeVisualizer.app.zip"
+                    class="btn btn-primary btn-large">
+                    <i class="fa-solid fa-download"></i>
+                    Download for macOS
+                </a>
+                <a href="https://github.com/AD-Paladins/FolderSizeVisualizer" target="_blank"
+                    class="btn btn-secondary btn-large">
+                    <i class="fa-brands fa-github"></i>
+                    View on GitHub
+                </a>
+            </div>
+            <p style="margin-top: 1rem; font-size: 0.875rem;">
+                Requires macOS 15.6+ • Xcode 16.0+ • Swift 6.0+
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#supported-tools">Supported Tools</a></li>
+                    <li><a href="#comparison">Why Us</a></li>
+                    <li><a href="#download">Download</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Documentation</h4>
+                <ul>
+                    <li><a href="https://github.com/AD-Paladins/FolderSizeVisualizer" target="_blank">GitHub</a></li>
+                    <li><a href="https://github.com/AD-Paladins/FolderSizeVisualizer#%EF%B8%8F-architecture-overview"
+                            target="_blank">Project Structure</a></li>
+                    <li><a href="https://github.com/AD-Paladins/FolderSizeVisualizer#-usage-guide" target="_blank">Usage
+                            Guide</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Community</h4>
+                <ul>
+                    <li><a href="https://github.com/AD-Paladins/FolderSizeVisualizer/graphs/contributors"
+                            target="_blank">Contributing</a></li>
+                    <li><a href="https://github.com/AD-Paladins/FolderSizeVisualizer/issues" target="_blank">Bug Reports
+                            & Feature Requests</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-content-2">
+            <div class="footer-section">
+                <h4>Developer Disk Analyzer</h4>
+                <p>Transform generic filesystem analysis into intelligent developer-tool artifact management.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>Built with <i class="fa-solid fa-heart cross"></i> for developers who care about their disk space</p>
+            <p style="margin-top: 0.5rem;">Developer Disk Analyzer.</p>
+        </div>
+    </footer>
+</body>
+
+</html>

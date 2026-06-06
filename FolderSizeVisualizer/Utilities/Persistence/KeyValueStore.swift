@@ -31,7 +31,7 @@ public enum StoreError: Error, LocalizedError {
 // MARK: - Typed keys
 
 /// A strongly-typed key for values stored in `UserDefaults` (or any key-value store).
-public struct AppKey<Value: Codable>: Hashable, Sendable {
+public struct AppKey<Value>: Hashable, Sendable where Value: Codable & Sendable {
     public static func == (lhs: AppKey<Value>, rhs: AppKey<Value>) -> Bool {
         // Compare both the key name and the generic Value type to avoid collisions
         return lhs.name == rhs.name && (Value.self == Value.self)

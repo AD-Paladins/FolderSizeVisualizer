@@ -9,5 +9,12 @@ DerivedData/
 .aider*
 
 .venv_arm64/
-
+venv/
 memory-agent.db
+
+.agents/
+
+skills-lock.json
+# Local Pi runtime state
+.atl/
+.pi/
