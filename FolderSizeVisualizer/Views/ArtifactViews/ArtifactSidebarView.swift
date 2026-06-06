@@ -77,8 +77,9 @@ struct ArtifactSidebarView: View {
 
             Button {
                 Task {
-                    _ = await FileSystemHelper().requestAccessAndStoreBookmark(for: .llmCustomDirectories)
-                    viewModel.startScan()
+                    if await FileSystemHelper().requestAccessAndStoreBookmark(for: .llmCustomDirectories) != nil {
+                        viewModel.startScan()
+                    }
                 }
             } label: {
                 Label("Add LLM Directory", systemImage: "folder.badge.plus")
@@ -87,8 +88,9 @@ struct ArtifactSidebarView: View {
 
             Button {
                 Task {
-                    _ = await FileSystemHelper().requestAccessAndStoreBookmark(for: .venvProjectRoots)
-                    viewModel.startScan()
+                    if await FileSystemHelper().requestAccessAndStoreBookmark(for: .venvProjectRoots) != nil {
+                        viewModel.startScan()
+                    }
                 }
             } label: {
                 Label("Add Venv Project Root", systemImage: "folder.badge.plus")
