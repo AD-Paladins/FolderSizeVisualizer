@@ -45,7 +45,9 @@ Unlike generic disk analyzers that show filesystem paths, this tool speaks the l
 | **Docker** | Images, containers, volumes |
 | **Homebrew** | Download cache |
 | **Python** | pip cache, Poetry cache |
+| **Venv** | Python virtual environments, installed packages |
 | **Rust** | Cargo registry, Cargo git |
+| **Local LLMs** | AI model files, cache |
 
 ### 🎨 User Experience
 
@@ -180,36 +182,36 @@ xcodebuild test -project FolderSizeVisualizer.xcodeproj -scheme FolderSizeVisual
 ```
 FolderSizeVisualizer/
 ├── Models/
-│   ├── DeveloperArtifact.swift      # Core artifact model
-│   └── FolderEntry.swift            # Legacy folder model
+│   ├── DeveloperArtifact.swift          # Core artifact model
+│   └── FolderEntry.swift                # Legacy folder model
 ├── Services/
-│   ├── ArtifactScanner.swift        # Scanning orchestration
-│   ├── FolderScanner.swift          # Legacy scanner
+│   ├── FolderScanner.swift              # Legacy scanner
 │   └── ArtifactDetectors/
-│       ├── XcodeArtifactDetector.swift
-│       ├── SimulatorArtifactDetector.swift
-│       ├── AndroidArtifactDetector.swift
-│       ├── NodeJSArtifactDetector.swift
-│       ├── DockerArtifactDetector.swift
-│       ├── HomebrewArtifactDetector.swift
-│       ├── PythonArtifactDetector.swift
-│       └── RustArtifactDetector.swift
+│       ├── ArtifactDetector.swift       # Protocol + FileSystemHelper
+│       ├── ArtifactScanService.swift    # Scanning orchestration
+│       └── Detectors/
+│           ├── CommonArtifactDetectors.swift  # Android, NodeJS, Docker, Homebrew, Python, Rust
+│           ├── LLMArtifactDetector.swift
+│           ├── SimulatorArtifactDetector.swift
+│           ├── VenvArtifactDetector.swift
+│           └── XcodeArtifactDetector.swift
 ├── ViewModels/
-│   ├── ArtifactScanViewModel.swift  # Main ViewModel
-│   └── ScanViewModel.swift          # Legacy ViewModel
+│   ├── ArtifactScanViewModel.swift      # Main ViewModel
+│   └── ScanViewModel.swift              # Legacy ViewModel
 ├── Views/
-│   ├── ArtifactContentView.swift    # Main 3-column layout
-│   ├── ContentView.swift            # Legacy view
+│   ├── ArtifactContentView.swift        # Main 3-column layout
+│   ├── ContentView.swift                # Legacy view
 │   ├── ArtifactViews/
 │   │   ├── DashboardView.swift
 │   │   ├── ArtifactSidebarView.swift
 │   │   ├── ToolDetailView.swift
-│   │   └── ToolDetailView.swift
+│   │   └── ArtifactDetail/             # Artifact detail views
 │   └── MainView/
 │       ├── ResultsListView.swift
 │       └── SidebarView.swift
 ├── UIComponents/
-│   └── PieChartView.swift           # Visualizations
+│   └── PieChartView.swift               # Visualizations
+├── Utilities/                           # Helper utilities
 └── Extensions/
     └── URL+Extensions.swift
 ```
@@ -376,6 +378,10 @@ testViewModel_batchDeletesSafeArtifacts()
 
 This project uses custom slash commands for AI coding tools. See
 [`docs/scripts/ai-commands-setup.md`](docs/scripts/ai-commands-setup.md) for setup instructions.
+
+### TODO
+
+- [ ] Update `install-ai-commands.sh` to read the project's file structure and follow the SDD workflow defined in [`docs/knowledge/workflows/sdd.md`](docs/knowledge/workflows/sdd.md)
 
 ### Code Style
 

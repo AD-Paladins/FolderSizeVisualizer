@@ -28,6 +28,8 @@ Define the technical approach: types, protocols, data flow, interfaces. Resolve 
 
 If the change affects navigation structure or introduces new UI components, update [`../../ux-design/specifications.md`](../../ux-design/specifications.md) to reflect the new state.
 
+If the change adds, removes, or renames files or directories in the Xcode project, update the project structure tree in [`../../README.md`](../../README.md) to match.
+
 **Output:** `../specs/<feature>/DESIGN.md`
 
 ### 5. Tasks
