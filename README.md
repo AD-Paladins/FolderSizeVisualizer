@@ -389,7 +389,7 @@ This project uses custom slash commands for AI coding tools. See
 
 | Document | Description |
 |----------|-------------|
-| [`DESIGN_SPECIFICATION.md`](DESIGN_SPECIFICATION.md) | Figma-ready UI/UX specification |
+| [`docs/ux-design/specifications.md`](docs/ux-design/specifications.md) | Figma-ready UI/UX specification |
 | [`docs/scripts/ai-commands-setup.md`](docs/scripts/ai-commands-setup.md) | AI command installation for OpenCode / Claude Code |
 
 ---
@@ -433,7 +433,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Documentation**: See the [DESIGN_SPECIFICATION.md](DESIGN_SPECIFICATION.md) for detailed UI/UX specs
+- **Documentation**: See the [docs/ux-design/specifications.md](docs/ux-design/specifications.md) for detailed UI/UX specs
 - **Bug Reports**: [GitHub Issues](https://github.com/your-org/folder-size-visualizer/issues)
 - **Feature Requests**: [GitHub Discussions](https://github.com/your-org/folder-size-visualizer/discussions)
 

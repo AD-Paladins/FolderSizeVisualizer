@@ -26,6 +26,8 @@ Write the detailed specification: requirements, scenarios, non-goals, acceptance
 ### 4. Design
 Define the technical approach: types, protocols, data flow, interfaces. Resolve open questions.
 
+If the change affects navigation structure or introduces new UI components, update [`../../ux-design/specifications.md`](../../ux-design/specifications.md) to reflect the new state.
+
 **Output:** `../specs/<feature>/DESIGN.md`
 
 ### 5. Tasks
@@ -43,6 +45,8 @@ Execute tests and prove the implementation matches the spec.
 
 ### 8. Archive
 Update `../index.md`, mark spec artifacts as accepted, clean up delta specs.
+
+Before closing: confirm that [`../../ux-design/specifications.md`](../../ux-design/specifications.md) reflects any navigation or component changes introduced by this change.
 
 **Output:** Updated index, closed spec
 

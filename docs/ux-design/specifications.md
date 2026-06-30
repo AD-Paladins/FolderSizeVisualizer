@@ -34,37 +34,92 @@ This document provides a Figma-ready design specification for the **Developer Di
 ### Navigation Structure
 
 ```
-Application Root
-├── Sidebar (Tool Navigation)
-│   ├── Scan System Button
-│   ├── Tool List
-│   │   ├── Xcode
-│   │   ├── iOS Simulators
-│   │   ├── Android SDK
-│   │   ├── Node.js
-│   │   ├── Docker
-│   │   ├── Homebrew
-│   │   ├── Python
-│   │   └── Rust
-│   └── Summary Stats
+Application Root (WindowGroup)
+│   @State isDeveloperMode: Bool
 │
-├── Content Area
-│   ├── Dashboard (Default)
-│   │   ├── Tool Cards Grid
-│   │   └── Quick Actions
-│   │
-│   └── Tool Detail View
-│       ├── Tool Header
-│       ├── Safe Cleanup Actions
-│       └── Artifact List
+├── [if !isDeveloperMode] ──────────────────────────────
+│   └── ContentView (Legacy Folder Scanner)
+│       └── NavigationSplitView
+│           ├── Sidebar: Folder Controls
+│           │   ├── Toggle "Developer mode"
+│           │   ├── Button "Select Folder" (NSOpenPanel)
+│           │   ├── Toggle "Skip hidden files"
+│           │   ├── Toggle "Limit results"
+│           │   ├── Stepper "Top N / All"
+│           │   └── [bottom] Root folder info + "Start Over"
+│           │
+│           ├── Content: ResultsListView
+│           │   ├── Breadcrumb "Back"
+│           │   └── List of folders (name, size, ratio bar)
+│           │
+│           └── Detail: FolderDetailView
+│               ├── Header (icon, name, path)
+│               ├── Size Overview (total, %, bar)
+│               ├── Quick Actions (Finder, Copy Path)
+│               └── Information (parent directory)
 │
-└── Detail Pane
-    └── Artifact Detail View
-        ├── What is this?
-        ├── Size Information
-        ├── Rebuild Cost
-        ├── Safety Status
-        └── Underlying Paths
+└── [if isDeveloperMode] ───────────────────────────────
+    └── ArtifactContentView (Developer Tool Scanner)
+        └── NavigationSplitView
+            ├── Sidebar (250-320pt): ArtifactSidebarView
+            │   ├── Toggle "Developer mode"
+            │   ├── Full Disk Access status
+            │   ├── Button "Scan System"
+            │   ├── Button "Add LLM Directory" (sandbox bookmark)
+            │   ├── Button "Add Venv Project Root" (sandbox bookmark)
+            │   ├── [scanning] ProgressView + Cancel
+            │   ├── Divider
+            │   ├── Tool List (ScrollView)
+            │   │   ├── Xcode
+            │   │   ├── iOS Simulators
+            │   │   ├── Android SDK
+            │   │   ├── Android Studio
+            │   │   ├── Node.js
+            │   │   ├── Docker
+            │   │   ├── Homebrew
+            │   │   ├── Python
+            │   │   ├── Venv (Python Virtual Envs)
+            │   │   ├── Rust
+            │   │   ├── Git
+            │   │   └── Local LLMs
+            │   └── [footer] Total Size, Safe to Delete, Scan Date
+            │
+            ├── Content (450-620pt)
+            │   ├── [tool selected] ToolDetailView
+            │   │   ├── Header (80pt icon, tool name, stats)
+            │   │   ├── Warning Banner (deletion responsibility)
+            │   │   ├── Apple Intelligence Analysis
+            │   │   │   ├── Availability status
+            │   │   │   └── "Analyze with Apple Intelligence" button
+            │   │   ├── Divider
+            │   │   └── ArtifactCard List
+            │   │       ├── Type, last used, risk badge (capsule)
+            │   │       ├── Description (MarkdownText, 3 lines)
+            │   │       ├── Size + Rebuild Cost
+            │   │       └── Actions: Details | Delete (if safe)
+            │   │
+            │   └── [no tool] DashboardView
+            │       ├── Header + subtitle
+            │       ├── [no results] ContentUnavailableView
+            │       └── [results] LazyVGrid of ToolCard
+            │
+            └── Detail (450-620pt)
+                ├── [artifact selected] ArtifactDetailView
+                │   ├── Header (icon, type, tool, risk badge)
+                │   ├── "What is this?" (MarkdownText)
+                │   ├── [venv] Installed Packages + Copy List
+                │   ├── [venv] Backup section (generate .md)
+                │   ├── Size Information
+                │   ├── Rebuild Cost
+                │   ├── [has date] Last Used
+                │   ├── Safety Status
+                │   └── Locations + "Show in Finder"
+                │
+                ├── [tool selected, no artifact]
+                │   └── ContentUnavailableView("Select an Artifact")
+                │
+                └── [nothing selected]
+                    └── ContentUnavailableView("Welcome")
 ```
 
 ---
@@ -74,16 +129,25 @@ Application Root
 ### 3.1 Sidebar - Tool Navigation
 
 **Purpose**: Primary navigation by developer tool
-**Width**: 250-320px
+**Width**: 250-320pt
 **Background**: System sidebar background
 
 #### Components
 
 1. **Header Section**
    - Title: "Developer Tools" (SF Pro, 17pt, Bold)
-   - Scan Button: Prominent, full-width
+   - Full Disk Access status badge + "Open Settings" / "Refresh" buttons
 
-2. **Tool List Item**
+2. **Action Buttons**
+   - "Scan System" — Prominent, full-width, triggers artifact scan
+   - "Add LLM Directory" — Bordered, security-scoped bookmark for local AI models
+   - "Add Venv Project Root" — Bordered, security-scoped bookmark for Python venvs
+
+3. **Scan Progress** [visible during scan]
+   - ProgressView (linear)
+   - Cancel button
+
+4. **Tool List Item**
    ```
    Layout: HStack
    ├── Icon (32x32, rounded 6pt)
@@ -97,7 +161,7 @@ Application Root
    Corner Radius: 8pt
    ```
 
-3. **Summary Footer**
+5. **Summary Footer**
    - Total Size (Caption, Bold)
    - Safe to Delete (Caption, Green)
    - Last Scan Time (Caption2, Tertiary)
@@ -190,6 +254,30 @@ Padding: 16pt
 │
 └── Clean Button (Prominent, Green)
     └── Label: "Clean Safe Artifacts"
+```
+
+#### Warning Banner
+```
+Layout: HStack
+Padding: 12pt
+Background: System warning 10% opacity
+Corner Radius: 8pt
+
+├── Icon: exclamationmark.triangle.fill
+└── Text: Deletion responsibility disclaimer
+```
+
+#### Apple Intelligence Analysis
+```
+Layout: VStack (8pt spacing)
+Padding: 16pt horizontal
+
+├── Status Badge (available / unavailable)
+└── Button "Analyze with Apple Intelligence"
+    └── Style: .borderedProminent
+    └── [if result] AIResultView
+        ├── Analysis summary
+        └── Recommendations
 ```
 
 #### Artifacts List
@@ -289,13 +377,15 @@ VStack (20pt spacing)
         └── Radius: 8pt
 ```
 
-**Sections:**
-1. What is this? (info.circle)
-2. Size (externaldrive)
-3. Rebuild Cost (clock)
-4. Last Used (calendar) [if available]
-5. Safety Status (shield)
-6. Locations (folder) - with "Show in Finder" buttons
+**Sections (in order):**
+1. What is this? (info.circle) — MarkdownText support
+2. [venv only] Installed Packages (shippingbox) — with "Copy List" button
+3. [venv only] Backup (archivebox) — generate .md backup before deletion
+4. Size (externaldrive)
+5. Rebuild Cost (clock)
+6. Last Used (calendar) [if available]
+7. Safety Status (shield)
+8. Locations (folder) — with "Show in Finder" buttons
 
 ---
 
