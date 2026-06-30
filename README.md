@@ -372,6 +372,11 @@ testViewModel_batchDeletesSafeArtifacts()
 
 4. **UI automatically updates!** ✨
 
+### AI-Assisted Development
+
+This project uses custom slash commands for AI coding tools. See
+[`docs/scripts/ai-commands-setup.md`](docs/scripts/ai-commands-setup.md) for setup instructions.
+
 ### Code Style
 
 - **Swift Format**: Run `swift-format format --recursive .`
@@ -385,9 +390,7 @@ testViewModel_batchDeletesSafeArtifacts()
 | Document | Description |
 |----------|-------------|
 | [`DESIGN_SPECIFICATION.md`](DESIGN_SPECIFICATION.md) | Figma-ready UI/UX specification |
-| [`IMPLEMENTATION_SUMMARY.md`](IMPLEMENTATION_SUMMARY.md) | Architecture and feature documentation |
-| [`DELIVERABLES.md`](DELIVERABLES.md) | Complete implementation checklist |
-| [`TESTING_GUIDE.md`](TESTING_GUIDE.md) | Testing strategy and examples |
+| [`docs/scripts/ai-commands-setup.md`](docs/scripts/ai-commands-setup.md) | AI command installation for OpenCode / Claude Code |
 
 ---
 
