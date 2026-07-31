@@ -5,7 +5,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "\n%1$@: %2$@"
           }
         },
@@ -21,7 +21,7 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "\n⚠️ %1$@: %2$@"
           }
         },
@@ -84,7 +84,7 @@
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Nuevo Directorio LLM"
+            "value" : "Agregar directorio LLM"
           }
         }
       }
@@ -134,10 +134,16 @@
     },
     "Apple Intelligence Analysis" : {
       "localizations" : {
-        "es-US" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Apple Intelligence Analysis"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Análisis con Apple Intelligence"
           }
         }
       }
@@ -154,10 +160,16 @@
     },
     "Artifact Details" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Artifact Details"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Artefacto borrado"
+            "value" : "Detalles del artefacto"
           }
         }
       }
@@ -246,20 +258,32 @@
     },
     "Copy Path" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy Path"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Copiar Path"
+            "value" : "Copiar ruta"
           }
         }
       }
     },
     "Dashboard" : {
       "localizations" : {
-        "es-US" : {
+        "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dashboard"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Panel de control"
           }
         }
       }
@@ -278,14 +302,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Delete %1$lld safe artifact(s) and reclaim %2$@?"
           }
         },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Borrar %1$lld seguro artefacto(s) y reclamar %2$@? "
+            "value" : "¿Borrar %1$lld artefacto(s) seguro(s) y recuperar %2$@?"
           }
         }
       }
@@ -312,10 +336,16 @@
     },
     "Deletion Result" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deletion Result"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Borrar Resultado"
+            "value" : "Resultado de la eliminación"
           }
         }
       }
@@ -332,30 +362,48 @@
     },
     "Developer Disk Usage" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer Disk Usage"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uso de Disco"
+            "value" : "Uso de disco del desarrollador"
           }
         }
       }
     },
     "Developer mode: " : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer mode: "
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Modo Developer:"
+            "value" : "Modo desarrollador: "
           }
         }
       }
     },
     "Developer Tools" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer Tools"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Herramientas"
+            "value" : "Herramientas de desarrollo"
           }
         }
       }
@@ -377,14 +425,14 @@
       "localizations" : {
         "en" : {
           "stringUnit" : {
-            "state" : "new",
+            "state" : "translated",
             "value" : "Found %1$lld tool(s) using %2$@"
           }
         },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Encontrada(s) %1$lld herramienta(s) usando %2$@"
+            "value" : "Se encontraron %1$lld herramienta(s) usando %2$@"
           }
         }
       }
@@ -434,20 +482,32 @@
     },
     "Limit results" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Limit results"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Limite de resultados"
+            "value" : "Limitar resultados"
           }
         }
       }
     },
     "Manual Review Required" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manual Review Required"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Revision Manual Requerida"
+            "value" : "Requiere revisión manual"
           }
         }
       }
@@ -589,7 +649,20 @@
       }
     },
     "Review details carefully. Some items may be essential to your workflows." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review details carefully. Some items may be essential to your workflows."
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisa los detalles con cuidado. Algunos elementos pueden ser esenciales para tus flujos de trabajo."
+          }
+        }
+      }
     },
     "Safe to delete" : {
       "localizations" : {
@@ -693,10 +766,16 @@
     },
     "Select an Artifact" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select an Artifact"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Selecciona un Artefacto"
+            "value" : "Selecciona un artefacto"
           }
         }
       }
@@ -732,13 +811,52 @@
       }
     },
     "Suggested: Delete" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggested: Delete"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerido: Borrar"
+          }
+        }
+      }
     },
     "Suggested: Keep" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggested: Keep"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerido: Mantener"
+          }
+        }
+      }
     },
     "Suggested: Review" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggested: Review"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sugerido: Revisar"
+          }
+        }
+      }
     },
     "toolDetailView.warning.banner" : {
       "extractionState" : "manual",
@@ -758,7 +876,20 @@
       }
     },
     "Top %lld" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top %lld"
+          }
+        },
+        "es-US" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Top %lld"
+          }
+        }
+      }
     },
     "Total" : {
       "localizations" : {
@@ -802,9 +933,15 @@
     },
     "Welcome to Folder Size Visualizer" : {
       "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Folder Size Visualizer"
+          }
+        },
         "es-US" : {
           "stringUnit" : {
-            "state" : "needs_review",
+            "state" : "translated",
             "value" : "Bienvenido a Folder Size Visualizer"
           }
         }
