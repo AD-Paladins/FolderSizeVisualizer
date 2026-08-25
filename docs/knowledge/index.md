@@ -70,6 +70,19 @@ _Add new specs here as they are created._
 | SwiftUI view | `patterns/swiftui-view.md` | ⚠️ uses @StateObject (app uses @Observable) |
 | Coordinator pattern | `patterns/coordinator.md` | N/A — app uses state-driven navigation |
 
+### Tools
+
+| Document | Path | Status |
+|---|---|---|
+| Code graph setup (Neo4j + tree-sitter + GraphRAG) | `tools/codegraph-setup.md` | ✅ |
+| Simulator scan hang diagnostics | `tools/codegraph-diagnostics.md` | ✅ |
+
+### State
+
+| Document | Path | Status |
+|---|---|---|
+| Session handoff 2026-08-25 | `state/handoff-2026-08-25.md` | ✅ read first when resuming on a new machine |
+
 ---
 
 ## World 2 — Agent Behavior (reasoning modes)

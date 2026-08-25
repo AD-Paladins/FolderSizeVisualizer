@@ -18,3 +18,6 @@ skills-lock.json
 # Local Pi runtime state
 .atl/
 .pi/
+
+# session transcript exports
+/session-*.md
