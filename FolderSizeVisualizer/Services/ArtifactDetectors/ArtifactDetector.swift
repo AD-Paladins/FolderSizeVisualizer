@@ -49,7 +49,68 @@ actor FileSystemHelper {
         case llmCustomDirectories
         case venvProjectRoots
     }
-    
+
+    // MARK: - External processes
+
+    struct ProcessResult {
+        let output: Data?
+        let exitCode: Int32
+    }
+
+    /// Runs an external process off-actor, draining stdout concurrently and
+    /// enforcing a timeout so a hung child can never block a scan forever.
+    ///
+    /// Returns nil when the process fails to launch or exceeds `timeout`;
+    /// in that case the child is terminated (SIGTERM, then SIGKILL).
+    func runProcess(
+        launchPath: String,
+        arguments: [String],
+        timeout: TimeInterval = 15
+    ) async -> ProcessResult? {
+        await Task.detached(priority: .utility) { [launchPath, arguments, timeout] in
+            let process = Process()
+            let pipe = Pipe()
+            process.executableURL = URL(fileURLWithPath: launchPath)
+            process.arguments = arguments
+            process.standardOutput = pipe
+            process.standardError = FileHandle.nullDevice
+
+            do {
+                try process.run()
+            } catch {
+                return nil
+            }
+
+            // Read stdout on a side thread while the child runs. Reading only
+            // after the process exits deadlocks once the child fills the
+            // ~64KB OS pipe buffer and blocks writing into a full pipe.
+            let reader = Task.detached(priority: .utility) {
+                pipe.fileHandleForReading.readDataToEndOfFile()
+            }
+
+            let exited = DispatchSemaphore(value: 0)
+            process.terminationHandler = { _ in exited.signal() }
+
+            if exited.wait(timeout: .now() + timeout) == .timedOut {
+                process.terminate()
+                if exited.wait(timeout: .now() + 2) == .timedOut {
+                    process.kill()
+                    _ = exited.wait(timeout: .now() + 2)
+                }
+                // Terminating the child closes the pipe, so the reader gets
+                // EOF and returns whatever partial output was collected.
+                _ = await reader.value
+                return nil
+            }
+
+            let data = await reader.value
+            return ProcessResult(
+                output: data.isEmpty ? nil : data,
+                exitCode: process.terminationStatus
+            )
+        }.value
+    }
+
     // MARK: - Security-scoped bookmarks
 
     private static func defaultsKey(for key: BookmarkKey) -> String { "bookmark_\(key.rawValue)" }

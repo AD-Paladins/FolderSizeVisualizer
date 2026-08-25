@@ -80,102 +80,84 @@ actor SimulatorArtifactDetector: ArtifactDetector {
     // MARK: - Parse Simulator Data
     
     private func parseSimulatorDevices() async -> [SimulatorDevice] {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
-        process.arguments = ["simctl", "list", "devices", "-j"]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-            
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let devicesDict = json["devices"] as? [String: [[String: Any]]] else {
-                return []
-            }
-            
-            var devices: [SimulatorDevice] = []
-            
-            for (runtime, deviceList) in devicesDict {
-                for deviceData in deviceList {
-                    guard let udid = deviceData["udid"] as? String,
-                          let name = deviceData["name"] as? String,
-                          let state = deviceData["state"] as? String else {
-                        continue
-                    }
-                    
-                    let dataPathString = deviceData["dataPath"] as? String
-                    let dataPath = dataPathString.map { URL(fileURLWithPath: $0) }
-                    let isAvailable = deviceData["isAvailable"] as? Bool ?? true
-                    
-                    let device = SimulatorDevice(
-                        udid: udid,
-                        name: name,
-                        state: state,
-                        runtime: runtime,
-                        dataPath: dataPath,
-                        lastBootedAt: nil,
-                        isAvailable: isAvailable
-                    )
-                    
-                    devices.append(device)
-                }
-            }
-            
-            return devices
-        } catch {
+        guard let result = await fileHelper.runProcess(
+            launchPath: "/usr/bin/xcrun",
+            arguments: ["simctl", "list", "devices", "-j"]
+        ), let data = result.output else {
             return []
         }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let devicesDict = json["devices"] as? [String: [[String: Any]]] else {
+            return []
+        }
+
+        var devices: [SimulatorDevice] = []
+
+        for (runtime, deviceList) in devicesDict {
+            for deviceData in deviceList {
+                guard let udid = deviceData["udid"] as? String,
+                      let name = deviceData["name"] as? String,
+                      let state = deviceData["state"] as? String else {
+                    continue
+                }
+
+                let dataPathString = deviceData["dataPath"] as? String
+                let dataPath = dataPathString.map { URL(fileURLWithPath: $0) }
+                let isAvailable = deviceData["isAvailable"] as? Bool ?? true
+
+                let device = SimulatorDevice(
+                    udid: udid,
+                    name: name,
+                    state: state,
+                    runtime: runtime,
+                    dataPath: dataPath,
+                    lastBootedAt: nil,
+                    isAvailable: isAvailable
+                )
+
+                devices.append(device)
+            }
+        }
+
+        return devices
     }
     
     private func parseSimulatorRuntimes() async -> [SimulatorRuntime] {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/xcrun")
-        process.arguments = ["simctl", "list", "runtimes", "-j"]
-        
-        let pipe = Pipe()
-        process.standardOutput = pipe
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-            
-            let data = pipe.fileHandleForReading.readDataToEndOfFile()
-            
-            guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                  let runtimesList = json["runtimes"] as? [[String: Any]] else {
-                return []
-            }
-            
-            var runtimes: [SimulatorRuntime] = []
-            
-            for runtimeData in runtimesList {
-                guard let identifier = runtimeData["identifier"] as? String,
-                      let version = runtimeData["version"] as? String,
-                      let name = runtimeData["name"] as? String else {
-                    continue
-                }
-                
-                let isAvailable = runtimeData["isAvailable"] as? Bool ?? true
-                
-                let runtime = SimulatorRuntime(
-                    identifier: identifier,
-                    version: version,
-                    name: name,
-                    isAvailable: isAvailable
-                )
-                
-                runtimes.append(runtime)
-            }
-            
-            return runtimes
-        } catch {
+        guard let result = await fileHelper.runProcess(
+            launchPath: "/usr/bin/xcrun",
+            arguments: ["simctl", "list", "runtimes", "-j"]
+        ), let data = result.output else {
             return []
         }
+
+        guard let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let runtimesList = json["runtimes"] as? [[String: Any]] else {
+            return []
+        }
+
+        var runtimes: [SimulatorRuntime] = []
+
+        for runtimeData in runtimesList {
+            guard let identifier = runtimeData["identifier"] as? String,
+                  let version = runtimeData["version"] as? String,
+                  let name = runtimeData["name"] as? String else {
+                continue
+            }
+
+            let isAvailable = runtimeData["isAvailable"] as? Bool ?? true
+
+            let runtime = SimulatorRuntime(
+                identifier: identifier,
+                version: version,
+                name: name,
+                isAvailable: isAvailable
+            )
+
+            runtimes.append(runtime)
+        }
+
+        return runtimes
     }
     
     // MARK: - Device Detection

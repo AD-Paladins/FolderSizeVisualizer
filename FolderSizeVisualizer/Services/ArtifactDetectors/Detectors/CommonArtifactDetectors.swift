@@ -245,17 +245,13 @@ actor PythonArtifactDetector: ArtifactDetector {
     }
     
     func isToolInstalled() async -> Bool {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/which")
-        process.arguments = ["python3"]
-        
-        do {
-            try process.run()
-            process.waitUntilExit()
-            return process.terminationStatus == 0
-        } catch {
+        guard let result = await fileHelper.runProcess(
+            launchPath: "/usr/bin/which",
+            arguments: ["python3"]
+        ) else {
             return false
         }
+        return result.exitCode == 0
     }
     
     private func detectPipCache() async -> DeveloperArtifact? {
