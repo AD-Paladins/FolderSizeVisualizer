@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var viewModel = ScanViewModel()
+    @State private var viewModel: ScanViewModel
     @State private var selectedFolder: FolderEntry.ID?
-    @State private var navigationStack: [URL] = []
+    @State private var navigationStack: [URL]
     
     @Binding var isDeveloperModeEnabled: Bool
     

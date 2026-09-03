@@ -207,4 +207,35 @@ struct FolderScannerTests {
         #expect(result.folders.first?.url.lastPathComponent == "A")
         #expect(result.folders.first?.size ?? 0 > 0)
     }
+
+    @Test("FolderScanner respects skipHiddenFiles=false to include hidden folders")
+    @MainActor
+    func scannerIncludesHiddenFoldersWhenSkipDisabled() async throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent("FSVTests-Hidden-\(UUID().uuidString)", isDirectory: true)
+        let visibleFolder = root.appendingPathComponent("Visible", isDirectory: true)
+        let hiddenFolder = root.appendingPathComponent(".Hidden", isDirectory: true)
+        
+        try fm.createDirectory(at: visibleFolder, withIntermediateDirectories: true)
+        try fm.createDirectory(at: hiddenFolder, withIntermediateDirectories: true)
+        try FolderSizeVisualizerTestsHelper.writeFile(at: visibleFolder.appendingPathComponent("file.txt"), size: 1024)
+        try FolderSizeVisualizerTestsHelper.writeFile(at: hiddenFolder.appendingPathComponent("file.txt"), size: 2048)
+        defer { FolderSizeVisualizerTestsHelper.removeDirectory(root) }
+
+        let scanner = FolderScanner()
+        
+        // With skipHiddenFiles=true (default), should only see Visible
+        let resultWithSkip = try await scanner.scan(root: root, skipHiddenFiles: true) { _, _ in }
+        #expect(resultWithSkip.folders.count == 1)
+        #expect(resultWithSkip.folders.first?.url.lastPathComponent == "Visible")
+        
+        // Clear cache and scan with skipHiddenFiles=false
+        await scanner.clearCache()
+        let resultWithoutSkip = try await scanner.scan(root: root, skipHiddenFiles: false) { _, _ in }
+        
+        // Should see both Visible and .Hidden
+        #expect(resultWithoutSkip.folders.count == 2)
+        let folderNames = Set(resultWithoutSkip.folders.map { $0.url.lastPathComponent })
+        #expect(folderNames == Set(["Visible", ".Hidden"]))
+    }
 }
