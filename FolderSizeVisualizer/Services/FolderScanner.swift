@@ -17,6 +17,7 @@ actor FolderScanner {
 
     func scan(
         root: URL,
+        skipHiddenFiles: Bool = true,
         progress: @Sendable @escaping (Double, String) async -> Void
     ) async throws -> ScanResult {
         if let cachedResult = scanCache[root] {
@@ -31,20 +32,30 @@ actor FolderScanner {
                 .totalFileAllocatedSizeKey
             ]
 
+            var enumeratorOptions: FileManager.DirectoryEnumerationOptions = []
+            if skipHiddenFiles {
+                enumeratorOptions.insert(.skipsHiddenFiles)
+            }
+
             guard let enumerator = fileManager.enumerator(
                 at: root,
                 includingPropertiesForKeys: Array(keys),
-                options: [.skipsHiddenFiles]
+                options: enumeratorOptions
             ) else {
                 return ([:], 0, nil)
             }
 
             let topLevelURLs: [URL]
             do {
+                var contentsOptions: FileManager.DirectoryEnumerationOptions = []
+                if skipHiddenFiles {
+                    contentsOptions.insert(.skipsHiddenFiles)
+                }
+
                 let children = try fileManager.contentsOfDirectory(
                     at: root,
                     includingPropertiesForKeys: [.isDirectoryKey],
-                    options: [.skipsHiddenFiles]
+                    options: contentsOptions
                 )
                 topLevelURLs = children.filter { url in
                     let vals = try? url.resourceValues(forKeys: [.isDirectoryKey])
