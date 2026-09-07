@@ -152,7 +152,7 @@ actor DockerArtifactDetector: ArtifactDetector {
 
 // MARK: - Homebrew Detector
 
-actor HomebrewArtifactDetector: ArtifactDetector {
+actor HomebrewArtifactDetector: DependencyReportProviding {
     nonisolated let tool: DeveloperTool = .homebrew
     private let fileHelper = FileSystemHelper()
     
@@ -217,6 +217,82 @@ This command forces Homebrew to download the missing files and re-link the binar
 """,
             underlyingPaths: [cellarPath]
         )
+    }
+
+    /// Generates a full report of every Homebrew dependency installed on the machine
+    /// (both formulas and casks) by parsing `brew list --formula` and `brew list --cask`.
+    func generateDependencyReport() async -> HomebrewDependencyReport? {
+        let now = Date()
+
+        let formulaResult = await fileHelper.runProcess(
+            launchPath: "/opt/homebrew/bin/brew",
+            arguments: ["list", "--formula"],
+            timeout: 30
+        )
+        let caskResult = await fileHelper.runProcess(
+            launchPath: "/opt/homebrew/bin/brew",
+            arguments: ["list", "--cask"],
+            timeout: 30
+        )
+
+        guard let formulaOutput = formulaResult?.output else {
+            return HomebrewDependencyReport(generatedAt: now, formulas: [], casks: [])
+        }
+        guard let caskOutput = caskResult?.output else {
+            return HomebrewDependencyReport(generatedAt: now, formulas: [], casks: [])
+        }
+
+        let formulas = parseFormulaOutput(formulaOutput)
+        let casks = parseCaskOutput(caskOutput)
+
+        return HomebrewDependencyReport(
+            generatedAt: now,
+            formulas: formulas,
+            casks: casks
+        )
+    }
+
+    /// Parses `brew list --formula` output. Each line is either `name version` or `name`.
+    func parseFormulaOutput(_ data: Data) -> [HomebrewDependency] {
+        guard let text = String(data: data, encoding: .utf8) else { return [] }
+        var deps: [HomebrewDependency] = []
+        for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty else { continue }
+
+            // `brew list --formula` prints `name version` when pinned, or just `name`.
+            let parts = trimmed.split(separator: " ", omittingEmptySubsequences: true)
+            if parts.count >= 2 {
+                deps.append(HomebrewDependency(
+                    name: String(parts[0]),
+                    version: String(parts.dropFirst().joined(separator: " ")),
+                    kind: .formula
+                ))
+            } else {
+                deps.append(HomebrewDependency(
+                    name: trimmed,
+                    version: nil,
+                    kind: .formula
+                ))
+            }
+        }
+        return deps
+    }
+
+    /// Parses `brew list --cask` output. Each line is a single cask name.
+    func parseCaskOutput(_ data: Data) -> [HomebrewDependency] {
+        guard let text = String(data: data, encoding: .utf8) else { return [] }
+        var deps: [HomebrewDependency] = []
+        for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty else { continue }
+            deps.append(HomebrewDependency(
+                name: trimmed,
+                version: nil,
+                kind: .cask
+            ))
+        }
+        return deps
     }
 }
 

@@ -42,6 +42,15 @@ struct ArtifactContentView: View {
                 )
             }
         }
+        .sheet(isPresented: .init(
+            get: { viewModel.showHomebrewReportView },
+            set: { viewModel.showHomebrewReportView = $0 }
+        )) {
+            NavigationStack {
+                HomebrewReportView(viewModel: viewModel)
+                    .navigationTitle("Homebrew Dependencies")
+            }
+        }
     }
 }
 

@@ -99,6 +99,14 @@ struct ArtifactSidebarView: View {
             .buttonStyle(.bordered)
             .disabled(viewModel.isScanning)
 
+            Button {
+                viewModel.generateHomebrewReport()
+                viewModel.showHomebrewReportView = true
+            } label: {
+                Label("Homebrew Dependencies", systemImage: "mug.fill")
+            }
+            .buttonStyle(.bordered)
+
             if viewModel.isScanning {
                 scanningView()
             }

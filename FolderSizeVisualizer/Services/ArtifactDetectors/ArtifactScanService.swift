@@ -223,6 +223,21 @@ actor ArtifactScanService {
         return await ToolArtifactSummary(tool: tool, artifacts: artifacts)
     }
     
+    /// Generates a full report of every Homebrew dependency installed on the machine.
+    func generateHomebrewDependencyReport() async throws -> HomebrewDependencyReport {
+        await ensureDetectorsInitialized()
+        
+        guard let detector = detectors.first(where: { $0.tool == .homebrew }) as? DependencyReportProviding else {
+            return HomebrewDependencyReport(generatedAt: Date(), formulas: [], casks: [])
+        }
+        
+        guard let report = await detector.generateDependencyReport() else {
+            return HomebrewDependencyReport(generatedAt: Date(), formulas: [], casks: [])
+        }
+        
+        return report
+    }
+    
     // MARK: - Cache Management
     
     func getCachedResult() -> ScanResult? {
