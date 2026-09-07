@@ -39,30 +39,33 @@ final class ScanViewModel {
         isFromCache = false
         currentScannedItem = ""
 
-        scanTask = Task {
-            let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
-                Task { @MainActor in 
-                    self?.progress = value
-                    self?.currentScannedItem = itemName
+        scanTask = Task { [weak self] in
+            guard let self else { return }
+
+            let progressHandler: @Sendable (Double, String) async -> Void = { value, itemName in
+                Task { @MainActor in
+                    self.progress = value
+                    self.currentScannedItem = itemName
                 }
             }
 
             do {
                 let result = try await scanner.scan(
                     root: url,
+                    skipHiddenFiles: skipHiddenFiles,
                     progress: progressHandler
                 )
 
-                folders = applyLimit(to: result.folders)
+                self.folders = applyLimit(to: result.folders)
                 
                 // Check if result came from cache
                 let cachedResult = await scanner.getCachedResult(for: url)
-                isFromCache = (cachedResult?.folders == result.folders)
+                self.isFromCache = (cachedResult?.folders == result.folders)
             } catch {
-                folders = []
+                self.folders = []
             }
 
-            isScanning = false
+            self.isScanning = false
         }
     }
 

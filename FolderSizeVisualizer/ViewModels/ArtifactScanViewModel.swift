@@ -98,11 +98,13 @@ final class ArtifactScanViewModel {
         selectedTool = nil
         selectedArtifact = nil
         
-        scanTask = Task { @MainActor in
-            let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
+        scanTask = Task { [weak self] in
+            guard let self else { return }
+
+            let progressHandler: @Sendable (Double, String) async -> Void = { value, itemName in
                 await MainActor.run {
-                    self?.progress = value
-                    self?.currentScanItem = itemName
+                    self.progress = value
+                    self.currentScanItem = itemName
                 }
             }
             
@@ -135,11 +137,13 @@ final class ArtifactScanViewModel {
         progress = 0
         currentScanItem = "Rescanning \(tool.displayName)..."
         
-        scanTask = Task { @MainActor in
-            let progressHandler: @Sendable (Double, String) async -> Void = { [weak self] value, itemName in
+        scanTask = Task { [weak self] in
+            guard let self else { return }
+
+            let progressHandler: @Sendable (Double, String) async -> Void = { value, itemName in
                 await MainActor.run {
-                    self?.progress = value
-                    self?.currentScanItem = itemName
+                    self.progress = value
+                    self.currentScanItem = itemName
                 }
             }
             

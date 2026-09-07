@@ -67,7 +67,7 @@ actor FileSystemHelper {
         arguments: [String],
         timeout: TimeInterval = 15
     ) async -> ProcessResult? {
-        await Task.detached(priority: .utility) { [launchPath, arguments, timeout] in
+        let task: Task<ProcessResult?, Never> = Task.detached(priority: .utility) { [launchPath, arguments, timeout] in
             let process = Process()
             let pipe = Pipe()
             process.executableURL = URL(fileURLWithPath: launchPath)
@@ -88,14 +88,14 @@ actor FileSystemHelper {
                 pipe.fileHandleForReading.readDataToEndOfFile()
             }
 
-            let exited = DispatchSemaphore(value: 0)
-            process.terminationHandler = { _ in exited.signal() }
+            let semaphore = DispatchSemaphore(value: 0)
+            process.terminationHandler = { _ in semaphore.signal() }
 
-            if exited.wait(timeout: .now() + timeout) == .timedOut {
+            if self.waitForProcess(semaphore, timeout: timeout) == .timedOut {
                 process.terminate()
-                if exited.wait(timeout: .now() + 2) == .timedOut {
-                    process.kill()
-                    _ = exited.wait(timeout: .now() + 2)
+                if self.waitForProcess(semaphore, timeout: 2) == .timedOut {
+                    kill(process.processIdentifier, SIGKILL)
+                    _ = self.waitForProcess(semaphore, timeout: 2)
                 }
                 // Terminating the child closes the pipe, so the reader gets
                 // EOF and returns whatever partial output was collected.
@@ -108,7 +108,15 @@ actor FileSystemHelper {
                 output: data.isEmpty ? nil : data,
                 exitCode: process.terminationStatus
             )
-        }.value
+        }
+        return await task.value
+    }
+
+    /// Blocks until the semaphore is signaled or the timeout elapses.
+    /// Runs synchronously on the caller's thread (a background utility task),
+    /// so `DispatchSemaphore.wait` is not called from an async context.
+    nonisolated private func waitForProcess(_ semaphore: DispatchSemaphore, timeout: TimeInterval) -> DispatchTimeoutResult {
+        semaphore.wait(timeout: .now() + timeout)
     }
 
     // MARK: - Security-scoped bookmarks
