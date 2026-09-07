@@ -24,6 +24,13 @@ protocol ArtifactDetector: Sendable {
     func isToolInstalled() async -> Bool
 }
 
+// MARK: - Dependency Report Provider
+
+/// Conformed by detectors that can produce a dependency report (e.g. Homebrew).
+protocol DependencyReportProviding: ArtifactDetector {
+    func generateDependencyReport() async -> HomebrewDependencyReport?
+}
+
 // MARK: - File System Utilities
 
 /// Helper utilities for artifact detection

@@ -25,6 +25,11 @@ final class ArtifactScanViewModel {
     var selectedTool: DeveloperTool?
     var selectedArtifact: DeveloperArtifact?
     
+    // Homebrew dependency report state
+    var homebrewReport: HomebrewDependencyReport?
+    var isGeneratingHomebrewReport = false
+    var showHomebrewReportView = false
+    
     // Deletion state
     var isDeletingArtifacts = false
     var deletionProgress: Double = 0
@@ -254,4 +259,25 @@ final class ArtifactScanViewModel {
         selectedTool = nil
         selectedArtifact = nil
     }
+    
+    // MARK: - Homebrew Report
+    
+    /// Generates a full report of every Homebrew dependency installed on the machine.
+    func generateHomebrewReport() {
+        guard !isGeneratingHomebrewReport else { return }
+        
+        isGeneratingHomebrewReport = true
+        
+        Task { @MainActor in
+            do {
+                let report = try await scanService.generateHomebrewDependencyReport()
+                self.homebrewReport = report
+                self.isGeneratingHomebrewReport = false
+            } catch {
+                print("❌ Homebrew report error: \(error)")
+                self.isGeneratingHomebrewReport = false
+            }
+        }
+    }
 }
+
