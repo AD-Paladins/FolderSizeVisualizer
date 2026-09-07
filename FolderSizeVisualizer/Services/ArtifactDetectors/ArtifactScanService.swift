@@ -139,44 +139,64 @@ actor ArtifactScanService {
         
         let totalDetectors = detectors.count
         
-        for (index, detector) in detectors.enumerated() {
-            let tool = detector.tool
-            let toolName = await tool.displayName
-            
-            // Check if tool is installed
-            let isInstalled = await detector.isToolInstalled()
-            
-            print("🔍 Checking \(toolName): \(isInstalled ? "✅ installed" : "⏭️  not installed")")
-            
-            guard isInstalled else {
-                // Skip if not installed
-                let progressValue = Double(index + 1) / Double(totalDetectors)
-                await progress(progressValue, "Skipping \(toolName) (not installed)")
-                continue
-            }
-            
-            await progress(Double(index) / Double(totalDetectors), "Scanning \(toolName)...")
-            
-            do {
-                // Run detector with sub-progress
-                let artifacts = try await detector.detect { subProgress, subMessage in
-                    let baseProgress = Double(index) / Double(totalDetectors)
-                    let detectorProgress = subProgress / Double(totalDetectors)
-                    await progress(baseProgress + detectorProgress, "\(toolName): \(subMessage)")
+        // Progress is reported as detectors finish (completion order). Each detector's
+        // own sub-progress callback drives the intra-detector detail; this counter
+        // interpolates linearly between finished detectors.
+        await progress(0.0, "Scanning developer tools...")
+        
+        do {
+            try await withTaskGroup(of: ToolArtifactSummary?.self) { group in
+                for detector in detectors {
+                    let tool = detector.tool
+                    let toolName = await tool.displayName
+                    
+                    // Check if tool is installed
+                    let isInstalled = await detector.isToolInstalled()
+                    
+                    print("🔍 Checking \(toolName): \(isInstalled ? "✅ installed" : "⏭️  not installed")")
+                    
+                    guard isInstalled else {
+                        // Skip if not installed
+                        group.addTask { return nil }
+                        continue
+                    }
+                    
+                    do {
+                        // Run detector concurrently with sub-progress.
+                        let artifacts = try await detector.detect { subProgress, subMessage in
+                            await progress(subProgress, "\(toolName): \(subMessage)")
+                        }
+                        
+                        if !artifacts.isEmpty {
+                            print("  ✅ Found \(artifacts.count) artifacts for \(toolName)")
+                            let summary = await ToolArtifactSummary(tool: tool, artifacts: artifacts)
+                            group.addTask { return summary }
+                        } else {
+                            print("  ⚠️  No artifacts found for \(toolName)")
+                            group.addTask { return nil }
+                        }
+                    } catch {
+                        // Log error but continue with other detectors
+                        print("  ❌ Error scanning \(toolName): \(error)")
+                        group.addTask { return nil }
+                    }
                 }
                 
-                if !artifacts.isEmpty {
-                    print("  ✅ Found \(artifacts.count) artifacts for \(toolName)")
-                    let summary = await ToolArtifactSummary(tool: tool, artifacts: artifacts)
-                    allToolSummaries.append(summary)
-                } else {
-                    print("  ⚠️  No artifacts found for \(toolName)")
+                var finished = 0
+                for await summary in group {
+                    finished += 1
+                    let value = Double(finished) / Double(totalDetectors)
+                    if let summary {
+                        allToolSummaries.append(summary)
+                        await progress(value, "Scanned \(summary.tool.displayName)")
+                    } else {
+                        await progress(value, "Skipped tool")
+                    }
                 }
-            } catch {
-                // Log error but continue with other detectors
-                print("  ❌ Error scanning \(toolName): \(error)")
-                await progress(Double(index + 1) / Double(totalDetectors), "Error scanning \(toolName)")
             }
+        } catch {
+            print("❌ Scan aborted: \(error)")
+            throw error
         }
         
         // Calculate totals
